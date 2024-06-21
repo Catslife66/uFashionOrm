@@ -35,13 +35,16 @@ const getUser = async (req, res) => {
 
 // register
 const registerUser = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body;
 
   try {
+    let userRole = role || "user";
+
     const user = await User.create({
       username,
       email,
       password,
+      role: userRole,
     });
     return res.status(201).json(user);
   } catch (err) {
@@ -66,12 +69,50 @@ const loginUser = async (req, res) => {
       res.status(401).json({ error: "Your credential is not correct." });
       return;
     }
+    if (user.role !== "user") {
+      return res.status(403).json({ error: "Access role denied." });
+    }
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       JWT_SECRET,
       { expiresIn: "1d" }
     );
+
+    return res.status(200).json({ token });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+const loginAdmin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email: email } });
+
+    if (!user) {
+      res.status(400).json({ error: "Invalid email or password." });
+      return;
+    }
+    const isValidPassword = await user.validPassword(password);
+
+    if (!isValidPassword) {
+      res.status(401).json({ error: "Your credential is not correct." });
+      return;
+    }
+    if (user.role === "user") {
+      return res
+        .status(403)
+        .json({ error: "Access role denied. Admin users only." });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
     return res.status(200).json({ token });
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -83,4 +124,5 @@ module.exports = {
   getUser,
   registerUser,
   loginUser,
+  loginAdmin,
 };

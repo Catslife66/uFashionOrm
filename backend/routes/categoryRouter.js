@@ -7,16 +7,33 @@ const {
   updateCategory,
   deleteCategory,
 } = require("../controllers/categoryController");
+const { authenticate, isAdmin } = require("../middleware/authMiddleware");
+const {
+  validateCategoryCreate,
+  validateCategoryUpdate,
+} = require("../middleware/validateMiddleware");
 
 // get list
-router.get("/", getCategoryList);
+router.get("/", authenticate, isAdmin, getCategoryList);
 // get an obj
-router.get("/:id", getCategory);
+router.get("/:id", authenticate, isAdmin, getCategory);
 // create
-router.post("/create", createCategory);
+router.post(
+  "/create",
+  authenticate,
+  isAdmin,
+  validateCategoryCreate,
+  createCategory
+);
 // update
-router.put("/:id", updateCategory);
+router.put(
+  "/:id",
+  authenticate,
+  isAdmin,
+  validateCategoryUpdate,
+  updateCategory
+);
 // delete
-router.delete("/:id", deleteCategory);
+router.delete("/:id", authenticate, isAdmin, deleteCategory);
 
 module.exports = router;

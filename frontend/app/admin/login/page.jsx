@@ -4,12 +4,11 @@ import Link from "next/link";
 import React, { useState } from "react";
 import cookie from "js-cookie";
 import { useRouter } from "next/navigation";
-import { login } from "../../utils/userService";
+import { loginAdmin } from "../../utils/userService";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -17,11 +16,12 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const response = await login({ email, password });
+      const response = await loginAdmin({ email, password });
       const token = response.token;
-      const expiry = isChecked ? 3 : 1;
-      cookie.set("token", token, { expires: expiry });
-      router.push("/");
+      localStorage.setItem("token", token);
+      cookie.set("token", token, { expires: 1 });
+      console.log(token);
+      router.push("/admin");
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);
@@ -49,7 +49,7 @@ const LoginPage = () => {
           <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
               <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                Sign in to your account
+                Welcome to Ufashion Admin
               </h1>
               <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
                 {error && (
@@ -101,26 +101,6 @@ const LoginPage = () => {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-start">
-                    <div className="flex items-center h-5">
-                      <input
-                        checked={isChecked}
-                        onChange={(e) => setIsChecked(e.target.checked)}
-                        id="remember"
-                        aria-describedby="remember"
-                        type="checkbox"
-                        className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
-                      />
-                    </div>
-                    <div className="ml-3 text-sm">
-                      <label
-                        htmlFor="remember"
-                        className="text-gray-500 dark:text-gray-300"
-                      >
-                        Remember me
-                      </label>
-                    </div>
-                  </div>
                   <Link
                     href="#"
                     className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500"
@@ -134,15 +114,6 @@ const LoginPage = () => {
                 >
                   Sign in
                 </button>
-                <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                  Don’t have an account yet?{" "}
-                  <Link
-                    href="/register"
-                    className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-                  >
-                    Sign up
-                  </Link>
-                </p>
               </form>
             </div>
           </div>

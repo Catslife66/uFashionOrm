@@ -3,10 +3,10 @@ const Category = require("../models/category");
 // get all categories
 const getCategoryList = async (req, res) => {
   try {
-    const categoryList = await Category.findAll();
+    const categoryList = await Category.findAll({ order: [["id", "ASC"]] });
     return res.status(200).json(categoryList);
   } catch (err) {
-    return res.status(400).json({ error: err.message });
+    return res.status(400).json({ error: err });
   }
 };
 
@@ -29,7 +29,7 @@ const getCategory = async (req, res) => {
 const createCategory = async (req, res) => {
   const { name } = req.body;
   try {
-    const category = await Category.create({ name });
+    const category = await Category.create({ name: name });
     return res.status(201).json(category);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -43,7 +43,7 @@ const updateCategory = async (req, res) => {
   try {
     const category = await Category.findByPk(id);
     if (category) {
-      category.name = name;
+      category.name = name.toLowerCase();
       await category.save();
       res.status(200).json(category);
     } else {

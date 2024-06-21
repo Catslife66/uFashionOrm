@@ -1,5 +1,6 @@
 const { body, validationResult } = require("express-validator");
 const User = require("../models/user");
+const Category = require("../models/category");
 
 const validateUserRegistration = [
   body("username")
@@ -55,7 +56,15 @@ const validateUserLogin = [
 const validateCategoryCreate = [
   body("name")
     .notEmpty()
-    .withMessage("please provide a name for this category."),
+    .custom(async (value) => {
+      const name = value.toLowerCase();
+      const category = await Category.findOne({
+        where: { name: name },
+      });
+      if (category) {
+        throw new Error("This category has already existed.");
+      }
+    }),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -68,7 +77,17 @@ const validateCategoryCreate = [
 const validateCategoryUpdate = [
   body("name")
     .notEmpty()
-    .withMessage("please provide a new name for this category."),
+    .custom(async (value) => {
+      const name = value.toLowerCase();
+      const category = await Category.findOne({
+        where: { name: name },
+      });
+      if (category) {
+        throw new Error(
+          "This category has already existed. Cannot be updated."
+        );
+      }
+    }),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

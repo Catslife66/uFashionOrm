@@ -4,7 +4,9 @@ const Category = require("../models/category");
 // get all products
 const getProductList = async (req, res) => {
   try {
-    const productList = await Product.findAll();
+    const productList = await Product.findAll({
+      order: [["updated_at", "DESC"]],
+    });
     return res.status(200).json(productList);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -32,7 +34,7 @@ const createProduct = async (req, res) => {
   try {
     const category = await Category.findByPk(category_id);
     if (!category) {
-      return res.status(400).json({ error: "No such category." });
+      return res.status(400).json({ error: "No such category exist." });
     }
     const product = await Product.create({
       name,
@@ -49,11 +51,15 @@ const createProduct = async (req, res) => {
 // update a product
 const updateProduct = async (req, res) => {
   const { id } = req.params;
-  const update = req.body;
+  const { name, price, description, category_id } = req.body;
   try {
     const product = await Product.findByPk(id);
     if (product) {
-      await product.update(update);
+      product.name = name;
+      product.price = price;
+      product.description = description;
+      product.category_id = category_id;
+      await product.save();
       res.status(200).json(product);
     } else {
       return res.status(404).json({ error: "No such product id." });

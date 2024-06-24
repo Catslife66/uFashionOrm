@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "/api/categories/";
+const API_URL = "/api/categories";
 
 const getCategoryList = async (token) => {
   const config = {
@@ -12,7 +12,7 @@ const getCategoryList = async (token) => {
   return response.data;
 };
 
-const getSignleCategory = async (id, token) => {
+const getSingleCategory = async (id, token) => {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -28,7 +28,7 @@ const createCategory = async (data, token) => {
       Authorization: `Bearer ${token}`,
     },
   };
-  const response = await axios.post(`${API_URL}/create`, data, config);
+  const response = await axios.post(API_URL, data, config);
   return response.data;
 };
 
@@ -54,7 +54,7 @@ const deleteCategory = async (id, token) => {
 
 const categoryService = {
   getCategoryList,
-  getSignleCategory,
+  getSingleCategory,
   createCategory,
   updateCategory,
   deleteCategory,

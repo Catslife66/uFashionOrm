@@ -18,7 +18,7 @@ const UpdateCategoryPage = ({ params }) => {
     }
     async function fetchCategory() {
       try {
-        const category = await categoryService.getSignleCategory(id, token);
+        const category = await categoryService.getSingleCategory(id, token);
         setCategory(category);
         setName(category.name);
       } catch (err) {

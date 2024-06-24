@@ -18,13 +18,7 @@ router.get("/", authenticate, isAdmin, getCategoryList);
 // get an obj
 router.get("/:id", authenticate, isAdmin, getCategory);
 // create
-router.post(
-  "/create",
-  authenticate,
-  isAdmin,
-  validateCategoryCreate,
-  createCategory
-);
+router.post("/", authenticate, isAdmin, validateCategoryCreate, createCategory);
 // update
 router.put(
   "/:id",

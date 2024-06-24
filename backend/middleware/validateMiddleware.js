@@ -129,7 +129,6 @@ const validateProductUpdate = [
     .optional()
     .isFloat({ gt: 0 })
     .withMessage("Price must be a positive number"),
-  body("category_id").optional().notEmpty().withMessage("Category is required"),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

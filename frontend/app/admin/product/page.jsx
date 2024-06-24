@@ -1,36 +1,51 @@
 "use client";
 
-import cookie from "js-cookie";
 import Link from "next/link";
+import cookie from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import productService from "app/utils/productService";
 import categoryService from "app/utils/categoryService";
 
-const CategoryManager = () => {
+const ProductManager = () => {
   const token = cookie.get("token");
-  const [categories, setCategories] = useState([]);
-  const router = useRouter();
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState({});
+
   useEffect(() => {
-    if (!token) {
-      router.push("/admin/login");
-    }
-    fetchCategory();
-    async function fetchCategory() {
+    fetchProducts();
+
+    async function fetchProducts() {
       try {
-        const categoryList = await categoryService.getCategoryList(token);
-        setCategories(categoryList);
+        const productList = await productService.getProducts();
+        setProducts(productList);
+        const categoryMap = {};
+        for (const product of productList) {
+          if (!categoryMap[product.category_id]) {
+            const category = await categoryService.getSingleCategory(
+              product.category_id,
+              token
+            );
+            categoryMap[product.category_id] = category.name;
+          }
+        }
+        setCategories(categoryMap);
       } catch (err) {
         console.log(err);
       }
     }
-  }, [token]);
+  }, []);
 
   const handleDelete = async (id) => {
-    try {
-      await categoryService.deleteCategory(id, token);
-      setCategories(categories.filter((category) => category.id !== id));
-    } catch (err) {
-      console.log(err);
+    if (token) {
+      try {
+        await productService.deleteProduct(id, token);
+        setProducts(products.filter((product) => product.id !== id));
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      console.log("No access token.");
     }
   };
 
@@ -48,7 +63,7 @@ const CategoryManager = () => {
               </div>
               <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                 <Link
-                  href="/admin/category/create"
+                  href="/admin/product/create"
                   id="createProductButton"
                   data-modal-toggle="createProductModal"
                   className="flex items-center justify-center text-white bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-orange-600 dark:hover:bg-orange-700 focus:outline-none dark:focus:ring-orange-800"
@@ -81,6 +96,15 @@ const CategoryManager = () => {
                       Category
                     </th>
                     <th scope="col" className="p-4">
+                      Name
+                    </th>
+                    <th scope="col" className="p-4">
+                      Description
+                    </th>
+                    <th scope="col" className="p-4">
+                      Price
+                    </th>
+                    <th scope="col" className="p-4">
                       Created at
                     </th>
                     <th scope="col" className="p-4">
@@ -92,9 +116,9 @@ const CategoryManager = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {categories.map((category) => (
+                  {products.map((product) => (
                     <tr
-                      key={category.id}
+                      key={product.id}
                       className="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <th
@@ -102,29 +126,44 @@ const CategoryManager = () => {
                         className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                       >
                         <div className="flex items-center mr-3">
-                          {category.id}
+                          {product.id}
                         </div>
                       </th>
                       <td className="px-4 py-3">
                         <div className="flex items-center mr-3">
-                          {category.name}
+                          {categories[product.category_id]}
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center mr-3">
-                          {category.created_at}
+                          {product.name}
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center mr-3">
-                          {category.updated_at}
+                          {product.description}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center mr-3">
+                          {product.price}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center mr-3">
+                          {product.created_at}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center mr-3">
+                          {product.updated_at}
                         </div>
                       </td>
 
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         <div className="flex items-center space-x-4">
                           <Link
-                            href={`/admin/category/edit/${category.id}`}
+                            href={`/admin/product/edit/${product.id}`}
                             data-drawer-target="drawer-update-product"
                             data-drawer-show="drawer-update-product"
                             aria-controls="drawer-update-product"
@@ -133,7 +172,7 @@ const CategoryManager = () => {
                             Edit
                           </Link>
                           <button
-                            onClick={() => handleDelete(category.id)}
+                            onClick={() => handleDelete(product.id)}
                             data-modal-target="delete-modal"
                             data-modal-toggle="delete-modal"
                             className="flex items-center text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
@@ -154,4 +193,4 @@ const CategoryManager = () => {
   );
 };
 
-export default CategoryManager;
+export default ProductManager;

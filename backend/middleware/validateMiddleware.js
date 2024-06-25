@@ -138,11 +138,49 @@ const validateProductUpdate = [
   },
 ];
 
+const validateProductSizeCreate = [
+  body("size")
+    .notEmpty()
+    .isIn(["XS", "xs", "Xs", "S", "s", "M", "m", "l", "L", "XL", "Xl", "xl"])
+    .withMessage("Invalid size value."),
+  body("stock")
+    .notEmpty()
+    .isInt({ min: 0 })
+    .withMessage("Stock must be a non-negative integer"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
+const validateProductSizeUpdate = [
+  body("size")
+    .optional()
+    .isIn(["XS", "xs", "Xs", "S", "s", "M", "m", "l", "L", "XL", "Xl", "xl"])
+    .withMessage("Invalid size value."),
+  body("stock")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Stock must be a positive number."),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
 module.exports = {
   validateUserRegistration,
   validateUserLogin,
   validateCategoryCreate,
   validateCategoryUpdate,
+  validateProductSizeCreate,
+  validateProductSizeUpdate,
   validateProductCreate,
   validateProductUpdate,
 };

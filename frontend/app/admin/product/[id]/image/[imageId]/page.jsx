@@ -44,15 +44,15 @@ const ImageEditPage = ({ params }) => {
       setMsg("Image updated successfully.");
       console.log(response);
     } catch (err) {
-      console.log(err);
+      setError(err);
     }
   };
 
-  // if (isSuccess) {
-  //   setTimeout(() => {
-  //     router.push(`/admin/product/${productId}/image`);
-  //   }, 2000);
-  // }
+  if (isSuccess) {
+    setTimeout(() => {
+      router.push(`/admin/product/${productId}/image`);
+    }, 2000);
+  }
 
   return (
     <section className="bg-white dark:bg-gray-900 p-3 sm:p-5 antialiased">

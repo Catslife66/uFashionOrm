@@ -80,13 +80,14 @@ const productImagePage = ({ params }) => {
             </div>
           </div>
           <div className="overflow-x-auto">
-            <div className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <div className="w-full text-left text-gray-500 dark:text-gray-400">
               <div className="grid grid-cols-3 gap-4">
-                <div>Name</div>
-                <div>Image</div>
-                <div>Actions</div>
+                <div className="px-4">Name</div>
+                <div className="px-4">Image</div>
+                <div className="px-4">Actions</div>
               </div>
-              <div className="">
+              <div className="p-4">
+                {images.length === 0 && <p>Please add images to the product</p>}
                 {images.map((image) => (
                   <div
                     key={image.id}

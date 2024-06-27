@@ -20,4 +20,4 @@ const userService = {
   loginAdmin,
 };
 
-module.exports = userService;
+export default userService;

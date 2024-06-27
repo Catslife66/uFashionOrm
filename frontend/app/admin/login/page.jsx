@@ -4,7 +4,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import cookie from "js-cookie";
 import { useRouter } from "next/navigation";
-import { loginAdmin } from "../../utils/userService";
+import userService from "app/utils/userService";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -16,7 +16,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const response = await loginAdmin({ email, password });
+      const response = await userService.loginAdmin({ email, password });
       const token = response.token;
       localStorage.setItem("token", token);
       cookie.set("token", token, { expires: 1 });

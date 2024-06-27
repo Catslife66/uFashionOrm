@@ -12,7 +12,7 @@ const reviewRoutes = require("./reviewRouter");
 const router = express.Router();
 
 router.use("/categories", categoryRoutes);
-router.use("/productimages", productImageRoutes);
+router.use("/productimage", productImageRoutes);
 router.use("/products", productRoutes);
 router.use("/productsize", productSizeRoutes);
 router.use("/users", userRoutes);

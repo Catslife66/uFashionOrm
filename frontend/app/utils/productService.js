@@ -38,7 +38,7 @@ const deleteProduct = async (id, token) => {
       Authorization: `Bearer ${token}`,
     },
   };
-  const response = await axios.get(`${API_URL}/${id}`, config);
+  const response = await axios.delete(`${API_URL}/${id}`, config);
   return response.data;
 };
 

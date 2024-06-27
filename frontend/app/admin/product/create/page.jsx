@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import cookie from "js-cookie";
-import productService from "app/utils/productService";
 import { useRouter } from "next/navigation";
+import productService from "app/utils/productService";
 import categoryService from "app/utils/categoryService";
 
 const CreateProductPage = () => {

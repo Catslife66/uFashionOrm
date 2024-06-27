@@ -61,8 +61,8 @@ const ProductManager = () => {
           <div className="flex flex-col md:flex-row items-stretch md:items-center md:space-x-3 space-y-3 md:space-y-0 justify-between mx-4 py-4 dark:border-gray-700">
             <div className="flex-1 flex items-center space-x-2">
               <h5>
-                <span className="text-gray-500">All Products:</span>
-                <span className="dark:text-white">123456</span>
+                <span className="text-gray-500 mr-2">All Products:</span>
+                <span className="dark:text-white">{products.length}</span>
               </h5>
             </div>
             <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
@@ -150,28 +150,26 @@ const ProductManager = () => {
                     <div className="p-4">
                       <div className="">
                         <Link
-                          href={`/admin/product/edit/${product.id}`}
-                          data-drawer-target="drawer-update-product"
-                          data-drawer-show="drawer-update-product"
-                          aria-controls="drawer-update-product"
-                          className="py-2 px-3 flex items-center text-sm font-medium text-center text-white bg-orange-700 rounded-lg hover:bg-orange-800 focus:ring-4 focus:outline-none focus:ring-orange-300 dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800"
+                          href={`product/edit/${product.id}`}
+                          className="flex items-center edit-btn-outline"
                         >
                           Edit Detail
                         </Link>
                         <Link
-                          href={`/admin/productsize/edit/${product.id}`}
-                          data-drawer-target="drawer-update-product"
-                          data-drawer-show="drawer-update-product"
-                          aria-controls="drawer-update-product"
-                          className="py-2 px-3 flex items-center text-sm font-medium text-center text-white bg-orange-700 rounded-lg hover:bg-orange-800 focus:ring-4 focus:outline-none focus:ring-orange-300 dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800"
+                          href={`productsize/edit/${product.id}`}
+                          className="flex items-center edit-btn-outline"
                         >
                           Edit Stock
                         </Link>
+                        <Link
+                          href={`product/${product.id}/image`}
+                          className="flex items-center edit-btn-outline"
+                        >
+                          Manage Image
+                        </Link>
                         <button
                           onClick={() => handleDelete(product.id)}
-                          data-modal-target="delete-modal"
-                          data-modal-toggle="delete-modal"
-                          className="flex items-center text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+                          className="flex items-center delete-btn-outline"
                         >
                           Delete
                         </button>

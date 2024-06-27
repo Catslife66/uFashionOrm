@@ -8,7 +8,7 @@ import productService from "app/utils/productService";
 
 const EditProductSizePage = ({ params }) => {
   const token = cookie.get("token");
-  const id = params.id;
+  const productId = params.productId;
   const [product, setProduct] = useState({
     id: "",
     name: "",
@@ -21,7 +21,7 @@ const EditProductSizePage = ({ params }) => {
 
     async function fetchProduct() {
       try {
-        const fetchProduct = await productService.getSingleProduct(id);
+        const fetchProduct = await productService.getSingleProduct(productId);
         setProduct(fetchProduct);
       } catch (err) {
         console.log(err);

@@ -40,21 +40,28 @@ const Header = () => {
     <header>
       <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-          <Link href="https://flowbite.com" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <img
               src="https://flowbite.com/docs/images/logo.svg"
               className="mr-3 h-6 sm:h-9"
               alt="Flowbite Logo"
             />
             <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-              Flowbite
+              UFashion
             </span>
           </Link>
           <div className="flex items-center lg:order-2">
             {user ? (
               <>
                 <div>Hello, </div>
-                <Dropdown label={user.username} dismissOnClick={false}>
+                <Dropdown
+                  dismissOnClick={false}
+                  renderTrigger={() => (
+                    <button className="me-3 mb-3 md:mb-0 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                      {user.username}
+                    </button>
+                  )}
+                >
                   <Dropdown.Item>
                     <Link href="/">Homepage</Link>
                   </Dropdown.Item>

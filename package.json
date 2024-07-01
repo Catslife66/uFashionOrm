@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "sequelize-slugify": "^1.6.2"
+  }
+}

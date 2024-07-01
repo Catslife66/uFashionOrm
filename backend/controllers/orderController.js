@@ -13,13 +13,13 @@ const getOrderList = async (req, res) => {
 
 // get user orders
 const getUserOrderList = async (req, res) => {
-  const user_id = req.user.id;
+  const userId = req.user.id;
   try {
-    const user = await User.findByPk(user_id);
+    const user = await User.findByPk(userId);
     if (!user) {
-      res.status(400).json({ error: "You are not authenticated." });
+      res.status(400).json({ error: "You are not logged in." });
     }
-    const userOrders = await Order.findAll({ where: { user_id: user_id } });
+    const userOrders = await Order.findAll({ where: { user_id: userId } });
     return res.status(200).json(userOrders);
   } catch (err) {
     return res.status(400).json({ error: err.message });

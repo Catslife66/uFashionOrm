@@ -1,5 +1,6 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
+const slugify = require("slugify");
 
 const Category = sequelize.define(
   "Category",
@@ -11,6 +12,10 @@ const Category = sequelize.define(
     },
     name: {
       type: DataTypes.STRING,
+      unique: true,
+    },
+    slug: {
+      type: DataTypes.STRING,
       allowNull: false,
       unique: true,
     },
@@ -21,6 +26,12 @@ const Category = sequelize.define(
     updatedAt: "updated_at",
   }
 );
+
+Category.addHook("beforeSave", (category, options) => {
+  if (category.name) {
+    category.slug = slugify(category.name, { lower: true });
+  }
+});
 
 Category.associations = (models) => {
   Category.hasMany(models.Product, { foreignKey: "category_id" });

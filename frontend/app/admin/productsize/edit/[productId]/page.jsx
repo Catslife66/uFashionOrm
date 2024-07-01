@@ -27,7 +27,7 @@ const EditProductSizePage = ({ params }) => {
         console.log(err);
       }
     }
-  }, [token, id]);
+  }, [token, productId]);
 
   return (
     <section className="bg-white dark:bg-gray-900 p-3 sm:p-5 antialiased">
@@ -47,11 +47,11 @@ const EditProductSizePage = ({ params }) => {
               <div className="col-span-1">{product.id}</div>
               <div className="col-span-1">{product.name}</div>
               <div className="col-span-3">
-                <SizeStockForm id={id} size="xs" />
-                <SizeStockForm id={id} size="s" />
-                <SizeStockForm id={id} size="m" />
-                <SizeStockForm id={id} size="l" />
-                <SizeStockForm id={id} size="xl" />
+                <SizeStockForm id={productId} size="xs" />
+                <SizeStockForm id={productId} size="s" />
+                <SizeStockForm id={productId} size="m" />
+                <SizeStockForm id={productId} size="l" />
+                <SizeStockForm id={productId} size="xl" />
               </div>
             </div>
           </div>

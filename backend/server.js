@@ -3,7 +3,7 @@ require("dotenv").config();
 const sequelize = require("./config/db");
 const cors = require("cors");
 const { errorHandler } = require("./middleware/errorMiddleware");
-const logger = require("./middleware/loggerMiddleware");
+const { logger } = require("./middleware/loggerMiddleware");
 const apiRoutes = require("./routes/routers");
 const path = require("path");
 

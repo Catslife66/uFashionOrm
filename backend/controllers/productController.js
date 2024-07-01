@@ -13,11 +13,29 @@ const getProductList = async (req, res) => {
   }
 };
 
+// get products by category
+const getProductsByCategory = async (req, res) => {
+  const { slug } = req.params;
+  try {
+    const category = await Category.findOne({ where: { slug: slug } });
+    if (!category) {
+      res.status(404).json({ error: "No categories are found." });
+      return;
+    }
+    const productList = await Product.findAll({
+      where: { category_id: category.id },
+    });
+    return res.status(200).json(productList);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
 // get a product
 const getProduct = async (req, res) => {
-  const { id } = req.params;
+  const { slug } = req.params;
   try {
-    const product = await Product.findByPk(id);
+    const product = await Product.findOne({ where: { slug: slug } });
     if (product) {
       res.status(200).json(product);
     } else {
@@ -87,6 +105,7 @@ const deleteProduct = async (req, res) => {
 
 module.exports = {
   getProductList,
+  getProductsByCategory,
   getProduct,
   createProduct,
   updateProduct,

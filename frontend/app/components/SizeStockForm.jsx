@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import cookie from "js-cookie";
 import productSizeService from "app/utils/productSizeService";
 
-const SizeStockForm = ({ id, size, isReadOnly }) => {
+const SizeStockForm = ({ id, size, isReadOnly = false }) => {
   const token = cookie.get("token");
   const [stock, setStock] = useState(0);
   const [sizeItemId, setSizeItemId] = useState(null);
+  const [isSaved, setIsSaved] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -21,6 +22,7 @@ const SizeStockForm = ({ id, size, isReadOnly }) => {
           id,
           size
         );
+
         if (sizeStock) {
           setSizeItemId(sizeStock.id);
           setStock(sizeStock.stock);
@@ -39,7 +41,7 @@ const SizeStockForm = ({ id, size, isReadOnly }) => {
       const response = sizeItemId
         ? await productSizeService.updateProductSize(sizeItemId, data, token)
         : await productSizeService.createProductSize(data, token);
-      console.log(response);
+      setIsSaved(true);
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err);
@@ -52,7 +54,7 @@ const SizeStockForm = ({ id, size, isReadOnly }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-3">
+    <form className="grid grid-cols-3">
       <label
         htmlFor={size}
         className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -78,10 +80,12 @@ const SizeStockForm = ({ id, size, isReadOnly }) => {
 
       {!isReadOnly && (
         <button
-          type="submit"
+          onClick={handleSubmit}
+          type="button"
+          disabled={isSaved}
           className="p-2.5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
         >
-          Save
+          {isSaved ? "Saved" : "Save"}
         </button>
       )}
     </form>

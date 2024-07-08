@@ -7,8 +7,13 @@ const getProducts = async () => {
   return response.data;
 };
 
-const getSingleProduct = async (id) => {
-  const response = await axios.get(`${API_URL}/${id}`);
+const getSingleProduct = async (slug) => {
+  const response = await axios.get(`${API_URL}/${slug}`);
+  return response.data;
+};
+
+const searchProducts = async (query) => {
+  const response = await axios.get(`${API_URL}/search?query=${query}`);
   return response.data;
 };
 
@@ -45,6 +50,7 @@ const deleteProduct = async (id, token) => {
 const productService = {
   getProducts,
   getSingleProduct,
+  searchProducts,
   createProduct,
   updateProduct,
   deleteProduct,

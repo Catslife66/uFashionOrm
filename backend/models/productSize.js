@@ -42,6 +42,7 @@ const ProductSize = sequelize.define(
 ProductSize.associations = (models) => {
   ProductSize.belongsTo(models.Product, { foreignKey: "product_id" });
   ProductSize.hasMany(models.OrderItem, { foreignKey: "product_size_id" });
+  ProductSize.hasMany(models.CartItem, { foreignKey: "product_size_id" });
 };
 
 module.exports = ProductSize;

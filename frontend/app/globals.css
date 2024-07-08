@@ -6,6 +6,10 @@
   @apply text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800;
 }
 
+.disable-submit-btn {
+  @apply text-white bg-blue-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center;
+}
+
 .edit-btn {
   @apply text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800;
 }
@@ -35,5 +39,16 @@
 }
 
 .size-btn {
-  @apply border border-gray-200 w-10 py-2 text-center hover:ring-2 hover:outline-none hover:ring-gray-400 focus:bg-gray-900 focus:text-white;
+  @apply border border-gray-200 w-10 py-2 text-center hover:ring-2 hover:outline-none hover:ring-gray-400;
+}
+
+.selected-size-btn {
+  @apply border border-gray-200 w-10 py-2 text-center text-white bg-gray-800 hover:ring-2 hover:outline-none hover:ring-gray-400;
+}
+
+.show-cart-dropdown {
+  position: absolute;
+  inset: 0px auto auto 0px;
+  margin: 0px;
+  transform: translate3d(1005px, 68px, 0px);
 }

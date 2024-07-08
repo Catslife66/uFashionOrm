@@ -8,9 +8,10 @@ const productImageRoutes = require("./productImageRouter");
 const orderRoutes = require("./orderRouter");
 const orderItemRoutes = require("./orderItemRouter");
 const reviewRoutes = require("./reviewRouter");
-
+const cartRoutes = require("./cartRouter");
 const router = express.Router();
 
+router.use("/cart", cartRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/productimage", productImageRoutes);
 router.use("/products", productRoutes);

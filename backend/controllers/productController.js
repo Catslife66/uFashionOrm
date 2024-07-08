@@ -1,5 +1,6 @@
 const Product = require("../models/product");
 const Category = require("../models/category");
+const { Op } = require("sequelize");
 
 // get all products
 const getProductList = async (req, res) => {
@@ -41,6 +42,29 @@ const getProduct = async (req, res) => {
     } else {
       return res.status(404).json({ error: "No such product id." });
     }
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+// search products
+const searchProducts = async (req, res) => {
+  const { query } = req.query;
+  if (!query) {
+    const productList = await Product.findAll({
+      order: [["updated_at", "DESC"]],
+    });
+    return res.status(200).json(productList);
+  }
+  try {
+    const productList = await Product.findAll({
+      where: {
+        name: {
+          [Op.iLike]: `%${query}%`,
+        },
+      },
+    });
+    return res.status(200).json(productList);
   } catch (err) {
     return res.status(400).json({ error: err.message });
   }
@@ -106,6 +130,7 @@ const deleteProduct = async (req, res) => {
 module.exports = {
   getProductList,
   getProductsByCategory,
+  searchProducts,
   getProduct,
   createProduct,
   updateProduct,

@@ -4,7 +4,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import cookie from "js-cookie";
 import { useRouter } from "next/navigation";
-import { login } from "../../utils/userService";
+import userService from "app/utils/userService";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -17,7 +17,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const response = await login({ email, password });
+      const response = await userService.login({ email, password });
       const token = response.token;
       const expiry = isChecked ? 3 : 1;
       cookie.set("token", token, { expires: expiry });

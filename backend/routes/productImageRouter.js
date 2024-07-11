@@ -37,7 +37,7 @@ router.post(
   upload.single("image"),
   createImage
 );
-router.get("/product/:productId", getProductImages);
+router.get("/product/:productSlug", getProductImages);
 router.get("/:id", getSingleImage);
 router.put("/:id", upload.single("image"), updateImage);
 router.delete("/:id", authenticate, isAdmin, deleteImage);

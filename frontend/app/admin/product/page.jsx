@@ -4,8 +4,8 @@ import Link from "next/link";
 import cookie from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import productService from "app/utils/productService";
-import categoryService from "app/utils/categoryService";
+import productService from "lib/utils/productService";
+import categoryService from "lib/utils/categoryService";
 import SizeStockForm from "app/components/SizeStockForm";
 
 const ProductManager = () => {
@@ -144,8 +144,8 @@ const ProductManager = () => {
                       />
                     </div>
 
-                    <div className="p-4">{product.created_at}</div>
-                    <div className="p-4">{product.updated_at}</div>
+                    <div className="p-4">{product.createdAt}</div>
+                    <div className="p-4">{product.updatedAt}</div>
 
                     <div className="p-4">
                       <div className="">
@@ -162,7 +162,7 @@ const ProductManager = () => {
                           Edit Stock
                         </Link>
                         <Link
-                          href={`product/${product.id}/image`}
+                          href={`product/${product.slug}/image`}
                           className="flex items-center edit-btn-outline"
                         >
                           Manage Image

@@ -4,7 +4,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import cookie from "js-cookie";
 import { useRouter } from "next/navigation";
-import userService from "app/utils/userService";
+import userService from "lib/utils/userService";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");

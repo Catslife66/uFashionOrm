@@ -1,20 +1,20 @@
-const Product = require("../models/product");
-const ProductImage = require("../models/productImage");
+const { Product, ProductImage } = require("../models");
 const path = require("path");
 const fs = require("fs");
 
 // get product images
 const getProductImages = async (req, res) => {
-  const { productId } = req.params;
+  const { productSlug } = req.params;
   try {
-    const product = await Product.findByPk(productId);
-    if (!product) {
-      return res.status(400).json({ error: "No such product id." });
-    }
-    const imageList = await ProductImage.findAll({
-      where: { product_id: productId },
+    const imageData = await Product.findOne({
+      where: { slug: productSlug },
+      include: [
+        {
+          model: ProductImage,
+        },
+      ],
     });
-    return res.status(200).json(imageList);
+    return res.status(200).json(imageData);
   } catch (err) {
     return res.status(500).json({ error: "Internal server error" });
   }

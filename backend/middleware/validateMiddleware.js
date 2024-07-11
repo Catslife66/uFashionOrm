@@ -1,6 +1,5 @@
 const { body, validationResult } = require("express-validator");
-const User = require("../models/user");
-const Category = require("../models/category");
+const { User, Category } = require("../models");
 
 const validateUserRegistration = [
   body("username")

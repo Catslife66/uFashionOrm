@@ -1,4 +1,4 @@
-import orderService from "app/utils/orderService";
+import orderService from "lib/utils/orderService";
 
 const MyOrders = async () => {
   const orders = await orderService.getMyOrders();

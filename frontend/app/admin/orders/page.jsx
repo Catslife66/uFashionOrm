@@ -1,5 +1,5 @@
 import { Link } from "next/navigation";
-import orderService from "app/utils/orderService";
+import orderService from "lib/utils/orderService";
 
 const OrderManager = async () => {
   const orders = await orderService.getOrders();

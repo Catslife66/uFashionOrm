@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const User = require("../models/user");
 const JWT_SECRET = process.env.JWT_SECRET;
+const { User } = require("../models");
 
 // get all users
 const getUserList = async (req, res) => {

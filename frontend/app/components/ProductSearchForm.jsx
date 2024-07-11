@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import productService from "app/utils/productService";
+import productService from "lib/utils/productService";
 
 const ProductSearchForm = () => {
   const [searchQuery, setSearchQuery] = useState("");

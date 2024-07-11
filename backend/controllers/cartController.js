@@ -1,6 +1,4 @@
-const Cart = require("../models/cart");
-const ProductSize = require("../models/productSize");
-const CartItem = require("../models/cartItem");
+const { Cart, CartItem, ProductSize } = require("../models");
 
 // get all user carts
 const getAllCart = async (req, res) => {
@@ -34,13 +32,13 @@ const getCart = async (req, res) => {
 const updateCart = async (req, res) => {
   const user = req.user;
   const { productId, size, quantity } = req.body;
-
+  console.log({ productId, size, quantity });
   try {
     let cart = await Cart.findOne({ where: { user_id: user.id } });
     if (!cart) {
       cart = await Cart.create({ user_id: user.id });
     }
-
+    console.log("cart is", cart.id);
     const productSizeItem = await ProductSize.findOne({
       where: { product_id: productId, size: size },
     });
@@ -50,7 +48,7 @@ const updateCart = async (req, res) => {
         .status(404)
         .json({ error: "Related product size stock item is not found." });
     }
-
+    console.log("productSizeItem is", productSizeItem.id);
     let cartItem = await CartItem.findOne({
       where: { cart_id: cart.id, product_size_id: productSizeItem.id },
     });
@@ -65,8 +63,8 @@ const updateCart = async (req, res) => {
       cartItem.quantity += quantity;
       await cartItem.save();
     }
-
-    return res.status(201).json(cartItem);
+    console.log("cartItem is", cartItem.id);
+    return res.status(200).json(cartItem);
   } catch (err) {
     return res.status(400).json({ error: err.message });
   }
@@ -87,13 +85,28 @@ const removeCartItem = async (req, res) => {
       await cartItem.destroy();
     }
   } catch (err) {
-    return res.status(400).json({ error: err });
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+// get items in cart
+const getCartItems = async (req, res) => {
+  const user = req.user;
+  try {
+    const cart = await Cart.findOne({
+      where: { user_id: user.id },
+      include: [{ model: CartItem }],
+    });
+    return res.status(200).json(cart);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
 };
 
 module.exports = {
   getCart,
   getAllCart,
+  getCartItems,
   updateCart,
   removeCartItem,
 };

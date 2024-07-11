@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import cookie from "js-cookie";
 import Link from "next/link";
 import SizeStockForm from "app/components/SizeStockForm";
-import productService from "app/utils/productService";
+import productService from "lib/utils/productService";
 
 const EditProductSizePage = ({ params }) => {
   const token = cookie.get("token");

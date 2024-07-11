@@ -1,6 +1,4 @@
-const Order = require("../models/order");
-const OrderItem = require("../models/ordetItem");
-const ProductSize = require("../models/productSize");
+const { Order, OrderItem, ProductSize } = require("../models");
 
 // get items in order
 const getItemsInOrder = async (req, res) => {

@@ -1,4 +1,5 @@
-const Category = require("../models/category");
+const { Category } = require("../models");
+const slugify = require("slugify");
 
 // get all categories
 const getCategoryList = async (req, res) => {
@@ -29,7 +30,10 @@ const getCategory = async (req, res) => {
 const createCategory = async (req, res) => {
   const { name } = req.body;
   try {
-    const category = await Category.create({ name: name });
+    const category = await Category.create({
+      name: name.toLowerCase(),
+      slug: "",
+    });
     return res.status(201).json(category);
   } catch (err) {
     return res.status(400).json({ error: err.message });

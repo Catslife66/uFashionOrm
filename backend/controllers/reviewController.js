@@ -1,7 +1,4 @@
-const Product = require("../models/product");
-const User = require("../models/user");
-const Review = require("../models/review");
-const OrderItem = require("../models/ordetItem");
+const { Product, User, Review, OrderItem } = require("../models");
 
 // create review
 const createReview = async (req, res) => {

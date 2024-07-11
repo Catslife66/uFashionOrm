@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import cookie from "js-cookie";
-import categoryService from "app/utils/categoryService";
+import categoryService from "lib/utils/categoryService";
 import { useRouter } from "next/navigation";
 
 const UpdateCategoryPage = ({ params }) => {

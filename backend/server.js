@@ -1,6 +1,6 @@
 const express = require("express");
 require("dotenv").config();
-const sequelize = require("./config/db");
+const { sequelize } = require("./models");
 const cors = require("cors");
 const { errorHandler } = require("./middleware/errorMiddleware");
 const { logger } = require("./middleware/loggerMiddleware");
@@ -27,10 +27,20 @@ app.use("/api", apiRoutes);
 // error handling middleware
 app.use(errorHandler);
 
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log("Connection has been established successfully.");
-    app.listen(PORT, () => console.log(`Running on ${PORT}.`));
-  })
-  .catch((error) => console.error("Unable to connect to the database:", error));
+const connectDb = async () => {
+  console.log("Connecting...");
+  try {
+    await sequelize.authenticate();
+    console.log("connection established.");
+  } catch (err) {
+    console.log("connection failed", err);
+    process.exit(1);
+  }
+};
+
+const runServer = async () => {
+  await connectDb();
+  app.listen(PORT, () => console.log(`Running on ${PORT}.`));
+};
+
+runServer();

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import axios from "axios";
+import userService from "lib/utils/userService";
 import { useRouter } from "next/navigation";
 
 const RegisterPage = () => {
@@ -15,13 +15,8 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const registerUrl = "/api/users/register";
     try {
-      const response = await axios.post(registerUrl, {
-        username,
-        email,
-        password,
-      });
+      await userService.register({ username, email, password });
       setIsSuccess(true);
     } catch (err) {
       if (err.response && err.response.data && err.response.data.errors) {

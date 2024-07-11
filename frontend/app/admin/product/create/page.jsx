@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import cookie from "js-cookie";
 import { useRouter } from "next/navigation";
-import productService from "app/utils/productService";
-import categoryService from "app/utils/categoryService";
+import productService from "lib/utils/productService";
+import categoryService from "lib/utils/categoryService";
 
 const CreateProductPage = () => {
   const token = cookie.get("token");

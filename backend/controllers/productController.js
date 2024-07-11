@@ -1,12 +1,11 @@
-const Product = require("../models/product");
-const Category = require("../models/category");
+const { Product, Category } = require("../models");
 const { Op } = require("sequelize");
 
 // get all products
 const getProductList = async (req, res) => {
   try {
     const productList = await Product.findAll({
-      order: [["updated_at", "DESC"]],
+      order: [["updatedAt", "DESC"]],
     });
     return res.status(200).json(productList);
   } catch (err) {
@@ -79,7 +78,8 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ error: "No such category exist." });
     }
     const product = await Product.create({
-      name,
+      name: name.toLowerCase(),
+      slug: "",
       description,
       price,
       category_id,
@@ -93,21 +93,22 @@ const createProduct = async (req, res) => {
 // update a product
 const updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, price, description, category_id } = req.body;
+  const update = req.body;
+
   try {
     const product = await Product.findByPk(id);
-    if (product) {
-      product.name = name;
-      product.price = price;
-      product.description = description;
-      product.category_id = category_id;
-      await product.save();
-      res.status(200).json(product);
-    } else {
+    if (!product) {
       return res.status(404).json({ error: "No such product id." });
     }
+
+    await product.update(update);
+    const updatedProduct = await Product.findByPk(id, {
+      include: [{ model: Category, as: "Category" }],
+    });
+
+    res.status(200).json(updatedProduct);
   } catch (err) {
-    return res.status(400).json({ error: err.message });
+    return res.status(400).json({ error: `The error is ${err.message}` });
   }
 };
 

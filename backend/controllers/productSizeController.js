@@ -1,6 +1,4 @@
-const Product = require("../models/product");
-const ProductSize = require("../models/productSize");
-const { createProduct } = require("./productController");
+const { Product, ProductSize } = require("../models");
 
 // get product size by product id
 const getProductSizesByProduct = async (req, res) => {

@@ -22,7 +22,13 @@ router.get("/category/:slug", getProductsByCategory);
 router.get("/:slug", getProduct);
 
 router.post("/", authenticate, isAdmin, validateProductCreate, createProduct);
-router.put("/:id", authenticate, isAdmin, validateProductUpdate, updateProduct);
+router.patch(
+  "/:id",
+  authenticate,
+  isAdmin,
+  validateProductUpdate,
+  updateProduct
+);
 router.delete("/:id", authenticate, isAdmin, deleteProduct);
 
 module.exports = router;

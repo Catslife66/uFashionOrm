@@ -4,7 +4,7 @@ import cookie from "js-cookie";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import categoryService from "app/utils/categoryService";
+import categoryService from "lib/utils/categoryService";
 
 const CategoryManager = () => {
   const token = cookie.get("token");

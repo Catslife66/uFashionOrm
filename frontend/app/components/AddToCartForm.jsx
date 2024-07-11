@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import cookie from "js-cookie";
-import productSizeService from "app/utils/productSizeService";
-import cartService from "app/utils/cartService";
+import productSizeService from "lib/utils/productSizeService";
+import cartService from "lib/utils/cartService";
+import { addItems } from "lib/features/cart/cartSlice";
+import { useAppDispatch } from "lib/hooks";
 
 const AddToCartForm = ({ productId }) => {
   const [selectedSize, setSelectedSize] = useState("M");
@@ -11,6 +13,7 @@ const AddToCartForm = ({ productId }) => {
   const [canAddCart, setCanAddCart] = useState(true);
   const [stock, setStock] = useState(10);
   const [errMsg, setErrMsg] = useState("");
+  const sizeOrder = ["XS", "S", "M", "L", "XL"];
   const [sizeStocks, setSizeStocks] = useState([
     { size: "XS", stock: 0 },
     { size: "S", stock: 0 },
@@ -19,12 +22,12 @@ const AddToCartForm = ({ productId }) => {
     { size: "XL", stock: 0 },
   ]);
   const token = cookie.get("token");
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (productId) {
       fetchProductSizeStock();
     }
-
     async function fetchProductSizeStock() {
       const data = await productSizeService.getProductSizes(productId);
       const fetchedData = data.map((item) => ({
@@ -83,26 +86,31 @@ const AddToCartForm = ({ productId }) => {
   };
 
   const handleAddtoCart = async () => {
-    if (!selectedSize) {
-      setErrMsg("Please choose a size.");
-    }
     const cartData = {
       productId: productId,
       size: selectedSize,
       quantity: qty,
     };
-    const res = await cartService.addtoCart(cartData, token);
-    const data = await res.json();
-    if (!res.ok) {
-      console.log(data.error);
+    console.log(cartData);
+
+    try {
+      const res = await cartService.addtoCart(cartData, token);
+      if (res) {
+        dispatch(addItems(qty));
+      }
+    } catch (error) {
+      console.log("Error adding to cart:", error.message);
     }
-    console.log(data);
   };
+
+  const sortedSizeStocks = sizeStocks.sort(
+    (a, b) => sizeOrder.indexOf(a.size) - sizeOrder.indexOf(b.size)
+  );
 
   return (
     <>
       <div className="flex flex-row my-4">
-        {sizeStocks.map((item) => (
+        {sortedSizeStocks.map((item) => (
           <button
             key={item.size}
             className={`mr-2 ${

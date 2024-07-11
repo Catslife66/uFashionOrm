@@ -1,29 +1,36 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useEffect } from "react";
 import { Tabs, Spinner } from "flowbite-react";
-import productService from "app/utils/productService";
 import AddToCartForm from "./AddToCartForm";
+import { useAppSelector, useAppDispatch, useAppStore } from "../../lib/hooks";
+import { fetchProduct } from "lib/features/product/productSlice";
 
 const ProductDetail = ({ slug }) => {
-  const [product, setProduct] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
+  const store = useAppStore();
+  const dispatch = useAppDispatch();
+  const product = useAppSelector((state) => state.product.product);
+  const loadStatus = useAppSelector((state) => state.product.status);
+  const error = useAppSelector((state) => state.product.error);
 
   useEffect(() => {
-    fetchProduct(slug);
-    async function fetchProduct(slug) {
-      try {
-        const res = await productService.getSingleProduct(slug);
-        setProduct(res);
-        setIsLoading(false);
-      } catch (err) {
-        console.log(err);
-      }
+    if (slug) {
+      dispatch(fetchProduct(slug));
     }
-  }, [slug]);
+  }, [slug, dispatch]);
 
-  {
-    isLoading && <Spinner />;
+  if (loadStatus === "loading") {
+    return (
+      <div className="max-w-screen-xl items-center px-4 mx-auto 2xl:px-0">
+        <Spinner />
+      </div>
+    );
   }
+
+  if (loadStatus === "failed") {
+    return <div>Data is not found. Error: {error}</div>;
+  }
+
   return (
     <section className="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased">
       <div className="max-w-screen-xl px-4 mx-auto 2xl:px-0">

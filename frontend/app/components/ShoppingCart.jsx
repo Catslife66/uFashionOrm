@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Link from "next/link";
+import CartCountIcon from "./CartCountIcon";
 
 const ShoppingCart = () => {
   const [isHidden, setIsHidden] = useState(true);
@@ -36,9 +38,7 @@ const ShoppingCart = () => {
           />
         </svg>
 
-        <div className="absolute top-0 -right-1 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full dark:border-gray-900">
-          0
-        </div>
+        <CartCountIcon />
       </button>
 
       <div
@@ -95,14 +95,14 @@ const ShoppingCart = () => {
             </div>
           </div>
         </div>
-        <a
-          href="#"
+        <Link
+          href="/cart"
           className="mb-2 me-2 inline-flex w-full items-center justify-center submit-btn"
           role="button"
         >
           {" "}
-          Proceed to Checkout{" "}
-        </a>
+          View My Cart{" "}
+        </Link>
       </div>
     </>
   );

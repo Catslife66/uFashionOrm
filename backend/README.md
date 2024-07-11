@@ -8,27 +8,21 @@
    npm install --save-dev sequelize-cli
    npx sequelize-cli init >> will generate config/models/migrations/seeders folders in the dir
 
-in config/config.json > rename config.js
-set up env values and add dialectOptions-ssl-require-true
-
-in config/db.js
-initiate Sequelize > import into server.js > verify the connection
+   in config/config.json > rename config.js
+   set up env values and add dialectOptions-ssl-require-true
 
 3. set up models
-   each model has its file >>
-   avoid direct require module, use quotes to refer a model >>
-   define the foreign key relationship by declare xxx.associations before exports
-   keep index.js default setup
+   to generate model and migration format file: npx sequelize-cli model:generate --name User --attributes firstName:string,lastName:string,email:string
+   connect database in index.js
+
+   !! sequelize instance comes from models/index.js
+   !! use sequelize cli command to generate correct format
 
 4. migrate to create tables
-   in migrations folder create migration files for each model.
-   orders of migrations matter. foreign key relationship needs dependency table get created first.
-   every time the model is modified, create a new migration files to run migrate.
-
-name needs to be detailed the change
-npx sequelize-cli migration:generate --name create-users
-npx sequelize-cli migration:generate --name add-profile-to-users
-npx sequelize-cli db:migrate
+   name needs to be detailed the change
+   npx sequelize-cli migration:generate --name create-users
+   npx sequelize-cli migration:generate --name add-profile-to-users
+   npx sequelize-cli db:migrate
 
 5. create controllers (views)
 

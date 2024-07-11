@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import cookie from "js-cookie";
-import productSizeService from "app/utils/productSizeService";
+import productSizeService from "lib/utils/productSizeService";
 
 const SizeStockForm = ({ id, size, isReadOnly = false }) => {
   const token = cookie.get("token");

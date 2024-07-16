@@ -2,12 +2,13 @@
 
 import { useEffect } from "react";
 import { Tabs, Spinner } from "flowbite-react";
+import cookie from "js-cookie";
 import AddToCartForm from "./AddToCartForm";
-import { useAppSelector, useAppDispatch, useAppStore } from "../../lib/hooks";
+import { useAppSelector, useAppDispatch } from "../../lib/hooks";
 import { fetchProduct } from "lib/features/product/productSlice";
 
 const ProductDetail = ({ slug }) => {
-  const store = useAppStore();
+  const token = cookie.get("token");
   const dispatch = useAppDispatch();
   const product = useAppSelector((state) => state.product.product);
   const loadStatus = useAppSelector((state) => state.product.status);
@@ -161,82 +162,7 @@ const ProductDetail = ({ slug }) => {
               </div>
             </div>
 
-            <AddToCartForm productId={product.id} />
-
-            {/* <div className="flex flex-row my-4">
-              <button className="size-btn mr-2" name="xs" onClick={handleClick}>
-                XS
-              </button>
-              <button className="size-btn mr-2" name="s" onClick={handleClick}>
-                S
-              </button>
-              <button className="size-btn mr-2" name="m" onClick={handleClick}>
-                M
-              </button>
-              <button className="size-btn mr-2" name="l" onClick={handleClick}>
-                L
-              </button>
-              <button className="size-btn" name="xl" onClick={handleClick}>
-                XL
-              </button>
-            </div>
-
-            <div className="relative flex items-center max-w-[8rem] flex flex-row my-4">
-              <button
-                type="button"
-                id="decrement-button"
-                data-input-counter-decrement="quantity-input"
-                className="bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
-              >
-                <svg
-                  className="w-3 h-3 text-gray-900 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 18 2"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M1 1h16"
-                  />
-                </svg>
-              </button>
-              <input
-                type="text"
-                id="quantity-input"
-                data-input-counter
-                aria-describedby="helper-text-explanation"
-                defaultValue={1}
-                min={1}
-                className="bg-gray-50 border border-x-0 border-y-1 border-gray-300 h-11 text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                required
-              />
-              <button
-                type="button"
-                id="increment-button"
-                data-input-counter-increment="quantity-input"
-                className="bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
-              >
-                <svg
-                  className="w-3 h-3 text-gray-900 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 18 18"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 1v16M1 9h16"
-                  />
-                </svg>
-              </button>
-            </div> */}
+            <AddToCartForm productId={product.id} token={token} />
 
             {/* saved button */}
             {/* <div className="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">

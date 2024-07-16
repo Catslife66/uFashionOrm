@@ -3,7 +3,7 @@ import Header from "app/components/Header";
 import Footer from "app/components/Footer";
 
 export const metadata = {
-  title: "UFashion",
+  title: "My shopping cart | Ufashion",
   description: "E-commerce site for women fashion",
 };
 

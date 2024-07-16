@@ -33,7 +33,7 @@ const ProductSearchForm = () => {
   };
 
   return (
-    <form className="max-w-md mx-auto w-full">
+    <form className="max-w-md mx-auto w-80">
       <label
         htmlFor="search"
         className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"

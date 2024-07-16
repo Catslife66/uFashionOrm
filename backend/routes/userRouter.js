@@ -13,7 +13,7 @@ const {
 } = require("../middleware/validateMiddleware");
 
 router.get("/", getUserList);
-router.post("/verify", getUser);
+router.get("/verify", getUser); // check if the use is logged in.
 router.post("/login", validateUserLogin, loginUser);
 router.post("/register", validateUserRegistration, registerUser);
 router.post("/admin/login", validateUserLogin, loginAdmin);

@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "next/navigation";
 
 async function fetchProducts() {
   const res = await fetch("http://localhost:4000/api/products");

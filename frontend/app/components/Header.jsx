@@ -5,44 +5,39 @@ import React, { useEffect, useState } from "react";
 import { Dropdown } from "flowbite-react";
 import SingoutButton from "./SignoutButton";
 import cookie from "js-cookie";
-import axios from "axios";
 import ProductSearchForm from "./ProductSearchForm";
 import ShoppingCart from "./ShoppingCart";
+import userService from "lib/utils/userService";
+import { useAppDispatch } from "lib/hooks";
+import { fetchCartItems } from "lib/features/cart/cartSlice";
 
 const Header = () => {
   const token = cookie.get("token");
   const [user, setUser] = useState(null);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     async function fetchUser() {
-      const loginUrl = "/api/users/verify";
-      if (token) {
-        try {
-          const response = await axios.post(
-            loginUrl,
-            {},
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          const userData = response.data;
-          setUser(userData);
-        } catch (err) {
-          setUser(null);
-          console.log(err);
-        }
+      try {
+        const userData = await userService.checkLoginStatus(token);
+        setUser(userData);
+      } catch (err) {
+        setUser(null);
+        console.log(err);
       }
     }
-    fetchUser();
-  }, []);
+
+    if (token) {
+      fetchUser();
+      dispatch(fetchCartItems(token));
+    }
+  }, [token, dispatch]);
 
   return (
     <header>
       <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
-        <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-          <div className="flex w-1/2">
+        <div className="flex justify-between items-center mx-auto max-w-screen-xl">
+          <div className="flex">
             <Link href="/" className="flex items-center mr-4">
               <img
                 src="https://flowbite.com/docs/images/logo.svg"

@@ -13,7 +13,7 @@ const getUserList = async (req, res) => {
   }
 };
 
-// get a user
+// get a user / chech login status
 const getUser = async (req, res) => {
   const token = req.headers["authorization"];
   if (!token) {

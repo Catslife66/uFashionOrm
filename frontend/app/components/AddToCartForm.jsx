@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import cookie from "js-cookie";
 import productSizeService from "lib/utils/productSizeService";
 import cartService from "lib/utils/cartService";
-import { addItems } from "lib/features/cart/cartSlice";
 import { useAppDispatch } from "lib/hooks";
+import { fetchCartItems } from "lib/features/cart/cartSlice";
 
-const AddToCartForm = ({ productId }) => {
+const AddToCartForm = ({ productId, token }) => {
   const [selectedSize, setSelectedSize] = useState("M");
   const [qty, setQty] = useState(1);
   const [disabledReduce, setDisabledReduce] = useState(false);
@@ -15,28 +14,29 @@ const AddToCartForm = ({ productId }) => {
   const [errMsg, setErrMsg] = useState("");
   const sizeOrder = ["XS", "S", "M", "L", "XL"];
   const [sizeStocks, setSizeStocks] = useState([
-    { size: "XS", stock: 0 },
-    { size: "S", stock: 0 },
-    { size: "M", stock: 0 },
-    { size: "L", stock: 0 },
-    { size: "XL", stock: 0 },
+    { id: "", size: "XS", stock: 0 },
+    { id: "", size: "S", stock: 0 },
+    { id: "", size: "M", stock: 0 },
+    { id: "", size: "L", stock: 0 },
+    { id: "", size: "XL", stock: 0 },
   ]);
-  const token = cookie.get("token");
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (productId) {
       fetchProductSizeStock();
     }
+
     async function fetchProductSizeStock() {
       const data = await productSizeService.getProductSizes(productId);
       const fetchedData = data.map((item) => ({
+        id: item.id,
         size: item.size,
         stock: item.stock,
       }));
       setSizeStocks(fetchedData);
     }
-  }, [productId]);
+  }, [productId, token]);
 
   useEffect(() => {
     setDisabledReduce(Number(qty) <= 1);
@@ -66,9 +66,6 @@ const AddToCartForm = ({ productId }) => {
   };
 
   const handleReduceQty = () => {
-    if (!selectedSize) {
-      setErrMsg("pls choose a size");
-    }
     let itemQty = Number(qty);
     if (itemQty > 1) {
       setQty(itemQty - 1);
@@ -76,9 +73,6 @@ const AddToCartForm = ({ productId }) => {
   };
 
   const handleAddQty = () => {
-    if (!selectedSize) {
-      setErrMsg("pls choose a size");
-    }
     let itemQty = Number(qty);
     if (itemQty < stock) {
       setQty(itemQty + 1);
@@ -91,12 +85,10 @@ const AddToCartForm = ({ productId }) => {
       size: selectedSize,
       quantity: qty,
     };
-    console.log(cartData);
-
     try {
       const res = await cartService.addtoCart(cartData, token);
       if (res) {
-        dispatch(addItems(qty));
+        dispatch(fetchCartItems(token));
       }
     } catch (error) {
       console.log("Error adding to cart:", error.message);
@@ -117,6 +109,7 @@ const AddToCartForm = ({ productId }) => {
               selectedSize === item.size ? "selected-size-btn" : "size-btn"
             }`}
             onClick={() => handleSelectSize(item.size, item.stock)}
+            dataset={item.id}
           >
             {item.size}
           </button>
@@ -157,7 +150,7 @@ const AddToCartForm = ({ productId }) => {
             id="quantity-input"
             data-input-counter
             aria-describedby="helper-text-explanation"
-            defaultValue={qty}
+            value={qty}
             max={stock}
             onChange={handleChangeQty}
             className="bg-gray-50 border border-x-0 border-y-1 border-gray-300 h-11 text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"

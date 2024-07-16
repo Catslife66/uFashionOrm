@@ -51,7 +51,7 @@ const searchProducts = async (req, res) => {
   const { query } = req.query;
   if (!query) {
     const productList = await Product.findAll({
-      order: [["updated_at", "DESC"]],
+      order: [["updatedAt", "DESC"]],
     });
     return res.status(200).json(productList);
   }

@@ -1,6 +1,7 @@
 import "../globals.css";
 import Header from "../components/Header";
 import Footer from "app/components/Footer";
+import Breadcrumbs from "app/components/Breadcrumbs";
 
 export const metadata = {
   title: "Create Next App",
@@ -11,6 +12,7 @@ export default function ProductLayout({ children }) {
   return (
     <div>
       <Header />
+      <Breadcrumbs />
       {children}
       <Footer />
     </div>

@@ -19,16 +19,16 @@ export const fetchCartItems = createAsyncThunk(
   }
 );
 
-// export const createOrUpdateCart = createAsyncThunk(
-//   "cart/createOrUpdateCart",
-//   async ({ data, token }, { rejectedWithValue }) => {
-//     try {
-//       return await cartService.addtoCart(data, token);
-//     } catch (err) {
-//       return rejectedWithValue(err.toString());
-//     }
-//   }
-// );
+export const createOrUpdateCart = createAsyncThunk(
+  "cart/createOrUpdateCart",
+  async ({ data, token }, { rejectedWithValue }) => {
+    try {
+      return await cartService.addtoCart(data, token);
+    } catch (err) {
+      return rejectedWithValue(err.toString());
+    }
+  }
+);
 
 export const updateQty = createAsyncThunk(
   "cart/updateQty",
@@ -55,7 +55,9 @@ export const removeItem = createAsyncThunk(
 const cartSlice = createSlice({
   name: "cart",
   initialState,
-  reducers: {},
+  reducers: {
+    reset: (state) => initialState,
+  },
   extraReducers(builder) {
     builder
       .addCase(fetchCartItems.pending, (state, action) => {
@@ -74,25 +76,25 @@ const cartSlice = createSlice({
         state.error = action.error.message;
       })
 
-      // .addCase(createOrUpdateCart.pending, (state, action) => {
-      //   state.status = "loading";
-      // })
-      // .addCase(createOrUpdateCart.fulfilled, (state, action) => {
-      //   state.status = "succeeded";
-      //   const updatedItem = action.payload;
-      //   const existingItemIndex = state.cartItems.findIndex(
-      //     (item) => item.id === updatedItem.id
-      //   );
-      //   if (existingItemIndex >= 0) {
-      //     state.cartItems[existingItemIndex].quantity += updatedItem.quantity;
-      //   } else {
-      //     state.cartItems.push(updatedItem);
-      //   }
-      // })
-      // .addCase(createOrUpdateCart.rejected, (state, action) => {
-      //   state.status = "failed";
-      //   state.error = action.error.message;
-      // })
+      .addCase(createOrUpdateCart.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(createOrUpdateCart.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        const updatedItem = action.payload;
+        const existingItemIndex = state.cartItems.findIndex(
+          (item) => item.id === updatedItem.id
+        );
+        if (existingItemIndex >= 0) {
+          state.cartItems[existingItemIndex].quantity += updatedItem.quantity;
+        } else {
+          state.cartItems.push(updatedItem);
+        }
+      })
+      .addCase(createOrUpdateCart.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
 
       .addCase(updateQty.pending, (state, action) => {
         state.status = "loading";
@@ -135,4 +137,5 @@ const cartSlice = createSlice({
   },
 });
 
+export const { reset } = cartSlice.actions;
 export default cartSlice.reducer;

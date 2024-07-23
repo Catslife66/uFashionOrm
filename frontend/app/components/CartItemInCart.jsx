@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import cookie from "js-cookie";
 import { useAppDispatch } from "lib/hooks";
 import {
   updateQty,
@@ -6,19 +7,46 @@ import {
   fetchCartItems,
 } from "lib/features/cart/cartSlice";
 import cartService from "lib/utils/cartService";
+import productSizeService from "lib/utils/productSizeService";
 
-const CartItemInCart = ({ item, token }) => {
-  const itemId = item.id;
-  const itemQty = parseInt(item.quantity);
-  const itemPrice = parseFloat(item.ProductSize.Product.price).toFixed(2);
-  const itemStock = item.ProductSize.stock;
+const CartItemInCart = ({
+  id,
+  name,
+  qty,
+  price,
+  stock,
+  size,
+  isAuthenticated,
+}) => {
+  const token = cookie.get("token");
+  const itemId = id;
+  const itemQty = parseInt(qty);
+  const itemPrice = parseFloat(price).toFixed(2);
   const [quantity, setQuantity] = useState(itemQty);
+  const [itemStock, setItemStock] = useState(0);
   const [totalAmount, setTotalAmount] = useState(itemQty * itemPrice);
   const [disableAdd, setDisableAdd] = useState(false);
   const [disableReduce, setDisableReduce] = useState(false);
+  const [productId, setProductId] = useState("");
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    async function fetchProductStockData() {
+      try {
+        const res = await productSizeService.getProductSizeBySize(id, size);
+        setItemStock(res.stock);
+        setProductId(res.product_id);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    if (isAuthenticated) {
+      setItemStock(stock);
+    } else {
+      fetchProductStockData();
+    }
+
     setDisableAdd(quantity >= itemStock);
     setDisableReduce(quantity <= 1);
     setTotalAmount(parseFloat(quantity * itemPrice).toFixed(2));
@@ -28,11 +56,21 @@ const CartItemInCart = ({ item, token }) => {
     if (quantity < itemStock) {
       let updated = parseInt(quantity + 1);
       setQuantity(updated);
-      let data = {
-        id: itemId,
-        quantity: updated,
-      };
-      dispatch(updateQty({ data, token }));
+      if (isAuthenticated) {
+        let data = {
+          id: itemId,
+          quantity: updated,
+        };
+        dispatch(updateQty({ data, token }));
+      } else {
+        let data = {
+          productId: productId,
+          size: size,
+          quantity: updated,
+        };
+        cartService.updateToLocalStorageCart(data);
+        cartService.setCartCount();
+      }
     }
   };
 
@@ -40,19 +78,39 @@ const CartItemInCart = ({ item, token }) => {
     if (quantity > 1) {
       let updated = parseInt(quantity - 1);
       setQuantity(updated);
-      let data = {
-        id: itemId,
-        quantity: updated,
-      };
-      dispatch(updateQty({ data, token }));
+      if (isAuthenticated) {
+        let data = {
+          id: itemId,
+          quantity: updated,
+        };
+        dispatch(updateQty({ data, token }));
+      } else {
+        let data = {
+          productId: productId,
+          size: size,
+          quantity: updated,
+        };
+        cartService.updateToLocalStorageCart(data);
+        cartService.setCartCount();
+      }
     }
   };
 
   const handleRemove = async () => {
-    dispatch(removeItem({ id: itemId, token }))
-      .unwrap()
-      .then(() => dispatch(fetchCartItems(token)))
-      .catch((err) => console.log(err));
+    if (isAuthenticated) {
+      dispatch(removeItem({ id: itemId, token }))
+        .unwrap()
+        .then(() => dispatch(fetchCartItems(token)))
+        .catch((err) => console.log(err));
+    } else {
+      let data = {
+        productId: productId,
+        size: size,
+      };
+      cartService.removeLocalCartItem(data);
+      cartService.setCartCount();
+      window.dispatchEvent(new Event("storage"));
+    }
   };
 
   return (
@@ -152,14 +210,10 @@ const CartItemInCart = ({ item, token }) => {
               href="#"
               className="text-base font-medium text-gray-900 hover:underline dark:text-white"
             >
-              {item.ProductSize.Product.name}
+              {name}
             </a>
-            <div className="text-sm text-gray-700">
-              Size: {item.ProductSize.size}
-            </div>
-            <div className="text-sm text-gray-700">
-              Price: £ {item.ProductSize.Product.price}
-            </div>
+            <div className="text-sm text-gray-700">Size: {size}</div>
+            <div className="text-sm text-gray-700">Price: £ {price}</div>
           </div>
 
           <div className="flex items-center gap-4">

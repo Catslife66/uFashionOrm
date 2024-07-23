@@ -2,36 +2,42 @@
 
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import cookie from "js-cookie";
 import { Dropdown } from "flowbite-react";
 import SingoutButton from "./SignoutButton";
-import cookie from "js-cookie";
 import ProductSearchForm from "./ProductSearchForm";
 import ShoppingCart from "./ShoppingCart";
-import userService from "lib/utils/userService";
 import { useAppDispatch } from "lib/hooks";
 import { fetchCartItems } from "lib/features/cart/cartSlice";
+import { fetchUserLoginStatus } from "lib/features/user/userSlice";
 
 const Header = () => {
   const token = cookie.get("token");
   const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    async function fetchUser() {
-      try {
-        const userData = await userService.checkLoginStatus(token);
-        setUser(userData);
-      } catch (err) {
-        setUser(null);
-        console.log(err);
-      }
-    }
-
     if (token) {
-      fetchUser();
-      dispatch(fetchCartItems(token));
+      dispatch(fetchUserLoginStatus(token))
+        .unwrap()
+        .then((data) => {
+          setUser(data);
+          setIsAuthenticated(true);
+        })
+        .catch((err) => {
+          console.log(err);
+          setIsAuthenticated(false);
+          setUser(null);
+        });
     }
   }, [token, dispatch]);
+
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      dispatch(fetchCartItems(token));
+    }
+  }, [isAuthenticated, token, dispatch]);
 
   return (
     <header>

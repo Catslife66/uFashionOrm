@@ -2,13 +2,11 @@
 
 import { useEffect } from "react";
 import { Tabs, Spinner } from "flowbite-react";
-import cookie from "js-cookie";
 import AddToCartForm from "./AddToCartForm";
 import { useAppSelector, useAppDispatch } from "../../lib/hooks";
 import { fetchProduct } from "lib/features/product/productSlice";
 
 const ProductDetail = ({ slug }) => {
-  const token = cookie.get("token");
   const dispatch = useAppDispatch();
   const product = useAppSelector((state) => state.product.product);
   const loadStatus = useAppSelector((state) => state.product.status);
@@ -162,7 +160,7 @@ const ProductDetail = ({ slug }) => {
               </div>
             </div>
 
-            <AddToCartForm productId={product.id} token={token} />
+            <AddToCartForm productId={product.id} />
 
             {/* saved button */}
             {/* <div className="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">

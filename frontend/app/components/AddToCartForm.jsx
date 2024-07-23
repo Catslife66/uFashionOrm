@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
+import cookie from "js-cookie";
 import productSizeService from "lib/utils/productSizeService";
 import cartService from "lib/utils/cartService";
 import { useAppDispatch } from "lib/hooks";
-import { fetchCartItems } from "lib/features/cart/cartSlice";
+import {
+  createOrUpdateCart,
+  fetchCartItems,
+} from "lib/features/cart/cartSlice";
+import userService from "lib/utils/userService";
 
-const AddToCartForm = ({ productId, token }) => {
+const AddToCartForm = ({ productId }) => {
+  const token = cookie.get("token");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedSize, setSelectedSize] = useState("M");
   const [qty, setQty] = useState(1);
   const [disabledReduce, setDisabledReduce] = useState(false);
@@ -23,10 +30,6 @@ const AddToCartForm = ({ productId, token }) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (productId) {
-      fetchProductSizeStock();
-    }
-
     async function fetchProductSizeStock() {
       const data = await productSizeService.getProductSizes(productId);
       const fetchedData = data.map((item) => ({
@@ -35,6 +38,24 @@ const AddToCartForm = ({ productId, token }) => {
         stock: item.stock,
       }));
       setSizeStocks(fetchedData);
+    }
+    async function fetchUserLoginStatus() {
+      try {
+        const res = await userService.checkLoginStatus(token);
+        if (res) {
+          setIsAuthenticated(true);
+        }
+      } catch (err) {
+        setIsAuthenticated(false);
+      }
+    }
+
+    if (productId) {
+      fetchProductSizeStock();
+    }
+
+    if (token) {
+      fetchUserLoginStatus();
     }
   }, [productId, token]);
 
@@ -80,18 +101,38 @@ const AddToCartForm = ({ productId, token }) => {
   };
 
   const handleAddtoCart = async () => {
-    const cartData = {
+    let cartData = {
       productId: productId,
       size: selectedSize,
       quantity: qty,
     };
-    try {
-      const res = await cartService.addtoCart(cartData, token);
-      if (res) {
-        dispatch(fetchCartItems(token));
+
+    if (isAuthenticated) {
+      try {
+        dispatch(createOrUpdateCart({ data: cartData, token }))
+          .unwrap()
+          .then(() => dispatch(fetchCartItems(token)))
+          .catch((err) => console.log(err));
+      } catch (error) {
+        console.log("Error adding to cart:", error.message);
       }
-    } catch (error) {
-      console.log("Error adding to cart:", error.message);
+    } else {
+      const data = await productSizeService.getProductSizeBySize(
+        cartData.productId,
+        cartData.size
+      );
+      cartData = {
+        productId: productId,
+        size: selectedSize,
+        quantity: qty,
+        productName: data.Product.name,
+        productPrice: data.Product.price,
+      };
+      cartService.addToLocalStorageCart(cartData);
+      let items = cartService.getLocalStorageCart();
+      let count = items.reduce((total, item) => total + item.quantity, 0);
+      localStorage.setItem("cartCount", count);
+      window.dispatchEvent(new Event("storage"));
     }
   };
 

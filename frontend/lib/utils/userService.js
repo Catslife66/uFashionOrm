@@ -31,6 +31,7 @@ const checkLoginStatus = async (token) => {
     },
   };
   const response = await axios.get(`${API_URL}/verify`, config);
+
   return response.data;
 };
 

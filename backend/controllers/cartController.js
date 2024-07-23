@@ -1,33 +1,5 @@
 const { Cart, CartItem, ProductSize, Product } = require("../models");
 
-// get all user carts
-// const getAllCart = async (req, res) => {
-//   try {
-//     const cart = await Cart.findAll();
-//     return res.status(200).json(cart);
-//   } catch (err) {
-//     return res.status(400).json({ error: `The error is ${err}` });
-//   }
-// };
-
-// get user cart
-// const getCart = async (req, res) => {
-//   const user = req.user;
-//   try {
-//     const cart = await Cart.findOne({
-//       where: { user_id: user.id },
-//     });
-//     if (!cart) {
-//       return res
-//         .status(400)
-//         .json({ error: "You have not created a shopping cart." });
-//     }
-//     return res.status(200).json(cart);
-//   } catch (err) {
-//     return res.status(400).json({ error: `The error is ${err}` });
-//   }
-// };
-
 // create or update shopping cart
 const updateCart = async (req, res) => {
   const user = req.user;
@@ -135,8 +107,6 @@ const getCartItem = async (req, res) => {
 };
 
 module.exports = {
-  // getCart,
-  // getAllCart,
   getCartItems,
   updateCart,
   updateCartItemQty,

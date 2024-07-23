@@ -1,4 +1,4 @@
-const { Product, ProductSize } = require("../models");
+const { Product, ProductSize, ProductImage } = require("../models");
 
 // get product size by product id
 const getProductSizesByProduct = async (req, res) => {
@@ -20,15 +20,12 @@ const getProductSizesByProduct = async (req, res) => {
 
 const getProductSizesBySize = async (req, res) => {
   const { product_id, size } = req.params;
-  console.log(product_id, size);
   try {
-    const product = await Product.findByPk(product_id);
-    if (!product) {
-      res.status(400).json({ error: "No such product id." });
-      return;
-    }
     const productSize = await ProductSize.findOne({
       where: { product_id: product_id, size: size.toUpperCase() },
+      include: {
+        model: Product,
+      },
     });
     return res.status(200).json(productSize);
   } catch (err) {

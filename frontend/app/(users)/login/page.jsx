@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import cookie from "js-cookie";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import userService from "lib/utils/userService";
+import cartService from "lib/utils/cartService";
+import { useAppDispatch } from "lib/hooks";
+import { createOrUpdateCart } from "lib/features/cart/cartSlice";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -12,6 +15,15 @@ const LoginPage = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const redirect = searchParams.get("redirect");
+    if (redirect) {
+      localStorage.setItem("redirectPath", redirect);
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +33,21 @@ const LoginPage = () => {
       const token = response.token;
       const expiry = isChecked ? 3 : 1;
       cookie.set("token", token, { expires: expiry });
-      router.push("/");
+      const redirectPath = localStorage.getItem("redirectPath") || "/";
+      router.push(redirectPath);
+      localStorage.removeItem("redirectPath");
+
+      const localCart = cartService.getLocalStorageCart();
+      const userToken = cookie.get("token");
+      for (let item of localCart) {
+        let itemData = {
+          productId: item.productId,
+          size: item.size,
+          quantity: item.quantity,
+        };
+        dispatch(createOrUpdateCart({ data: itemData, token: userToken }));
+      }
+      cartService.clearLocalStorageCart();
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);

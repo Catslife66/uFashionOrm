@@ -1,19 +1,47 @@
+"use client";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import cookie from "js-cookie";
+import cartService from "lib/utils/cartService";
+import paymentService from "lib/utils/paymentService";
+import { useEffect, useState } from "react";
 
-const OrderSummary = ({
-  isAuthenticated,
-  cartSubtotal,
-  shipping,
-  cartTotal,
-}) => {
+const OrderSummary = ({ isAuthenticated, cartSubtotal }) => {
   const router = useRouter();
+  const token = cookie.get("token");
+  const SHIPPING_COST = parseFloat(5).toFixed(2);
+  const SHIPPING_THRESHOLD = 50.0;
+  const [shipping, setShipping] = useState(0);
+  const [cartTotal, setCartTotal] = useState(0);
 
-  const handleClickCheckout = () => {
+  useEffect(() => {
+    if (parseFloat(cartSubtotal) >= SHIPPING_THRESHOLD) {
+      setShipping(0);
+    } else {
+      setShipping(SHIPPING_COST);
+    }
+    const total = parseFloat(cartSubtotal) + parseFloat(shipping);
+    setCartTotal(total.toFixed(2));
+  }, [cartSubtotal, shipping]);
+
+  const handleClickCheckout = async () => {
     if (!isAuthenticated) {
       router.push(`/login?redirect=/cart`);
     } else {
-      router.push("/checkout");
+      try {
+        const cartData = await cartService.getMyCart(token);
+        const data = {
+          userId: cartData.user_id,
+          cartItems: cartData.CartItems,
+          cartSubtotal: cartSubtotal,
+          shipping: shipping,
+        };
+        const response = await paymentService.createPaymentSession(data);
+        router.push(response.url);
+      } catch (err) {
+        console.log(err);
+      }
     }
   };
 

@@ -6,37 +6,42 @@ import { useAppDispatch, useAppSelector } from "lib/hooks";
 import cartService from "lib/utils/cartService";
 import { fetchUserLoginStatus } from "lib/features/user/userSlice";
 import { fetchCartItems } from "lib/features/cart/cartSlice";
-import { Spinner } from "flowbite-react";
 
 const ShoppingCart = () => {
   const token = cookie.get("token");
   const [isHidden, setIsHidden] = useState(true);
   const cartStatus = useAppSelector((state) => state.cart.status);
   const cartItemList = useAppSelector((state) => state.cart.cartItems);
-  const [localStorageCart, setLocalStorageCart] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const userStatus = useAppSelector((state) => state.user.status);
-
+  const [cartItems, setCartItems] = useState([]);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (token && userStatus === "idle") {
-      dispatch(fetchUserLoginStatus(token));
+    if (token) {
+      if (userStatus === "idle") {
+        dispatch(fetchUserLoginStatus(token));
+      } else if (userStatus === "succeeded") {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    } else {
+      setIsAuthenticated(false);
     }
-    if (userStatus === "succeeded") {
-      setIsAuthenticated(true);
-    }
-  }, [userStatus]);
+  }, [token, userStatus, dispatch]);
 
   useEffect(() => {
     if (isAuthenticated) {
       if (cartStatus === "idle") {
         dispatch(fetchCartItems(token));
+      } else if (cartStatus === "succeeded") {
+        setCartItems(cartItemList);
       }
     } else {
       const updataCartContent = () => {
         const cartItemListLocalStorage = cartService.getLocalStorageCart();
-        setLocalStorageCart(cartItemListLocalStorage);
+        setCartItems(cartItemListLocalStorage);
       };
 
       updataCartContent();
@@ -47,20 +52,20 @@ const ShoppingCart = () => {
         window.removeEventListener("storage", updataCartContent);
       };
     }
-  }, [isAuthenticated, cartStatus]);
+  }, [isAuthenticated, cartStatus, dispatch]);
 
-  const renderAuthenticatedCart = (cartItems) => {
-    return cartItems.map((item) => (
+  const renderAuthenticatedCart = (items) => {
+    return items.map((item) => (
       <div key={item.id} className="flex flex-col">
         <div className="flex flex-row my-2">
           <a
             href="#"
             className="truncate text-sm font-semibold leading-none text-gray-900 dark:text-white hover:underline"
           >
-            {item.ProductSize.Product.name}
+            {item.ProductSize?.Product?.name || ""}
           </a>
           <p className="mt-0.5 truncate text-sm font-normal text-gray-500 dark:text-gray-400">
-            £ {item.ProductSize.Product.price}
+            £ {item.ProductSize?.Product?.price || ""}
           </p>
         </div>
         <div className="flex items-center justify-end gap-6">
@@ -68,7 +73,7 @@ const ShoppingCart = () => {
             Qty: {item.quantity}
           </p>
           <p className="text-sm font-normal leading-none text-gray-500 dark:text-gray-400">
-            Size: {item.ProductSize.size}
+            Size: {item.ProductSize?.size || ""}
           </p>
           <button
             data-tooltip-target="tooltipRemoveItem1a"
@@ -85,7 +90,7 @@ const ShoppingCart = () => {
             >
               <path
                 fillRule="evenodd"
-                d="M2 12a10 10 0 1 1 20 0 10 10 0 0 1-20 0Zm7.7-3.7a1 1 0 0 0-1.4 1.4l2.3 2.3-2.3 2.3a1 1 0 1 0 1.4 1.4l2.3-2.3 2.3 2.3a1 1 0 0 0 1.4-1.4L13.4 12l2.3-2.3a1 1 0 0 0-1.4-1.4L12 10.6 9.7 8.3Z"
+                d="M2 12a10 10 0 1 1 20 0 10 10 0 0 1-20 0Zm7.7-3.7a1 1 0 0 0-1.4 1.4l2.3 2.3-2.3 2.3a1 1 0 1 0 1.4 1.4l2.3-2.3 2.3 2.3a1 1 0 0 0 1.4-1.4L12 10.6 9.7 8.3Z"
                 clipRule="evenodd"
               />
             </svg>
@@ -103,12 +108,9 @@ const ShoppingCart = () => {
     ));
   };
 
-  const renderLocalStorageCart = (cartItems) => {
-    return cartItems.map((item) => (
-      <div
-        key={`${item.productName} + ${item.size}`}
-        className="grid grid-cols-3 gap-2 py-2"
-      >
+  const renderLocalStorageCart = (items) => {
+    return items.map((item, index) => (
+      <div key={index} className="grid grid-cols-3 gap-2 py-2">
         <div className="flex flex-col">
           <a
             href="#"
@@ -181,8 +183,8 @@ const ShoppingCart = () => {
       >
         <div className="flex flex-col">
           {isAuthenticated
-            ? renderAuthenticatedCart(cartItemList)
-            : renderLocalStorageCart(localStorageCart)}
+            ? renderAuthenticatedCart(cartItems)
+            : renderLocalStorageCart(cartItems)}
         </div>
         <Link
           href="/cart"

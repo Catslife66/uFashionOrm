@@ -25,16 +25,20 @@ const getUserOrderList = async (req, res) => {
   }
 };
 
-// create order
+// init an order
 const createOrder = async (req, res) => {
-  const { user_id, total_amount, status } = req.body;
+  const user = req.user;
+  const { total_amount } = req.body;
   try {
-    const user = await User.findByPk(user_id);
     if (!user) {
       res.status(400).json({ error: "User does not exits." });
       return;
     }
-    const order = Order.create({ user_id, total_amount, status });
+    const order = Order.create({
+      user_id: user.id,
+      total_amount: total_amount,
+      status: "Pending",
+    });
     return res.status(201).json(order);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -42,16 +46,16 @@ const createOrder = async (req, res) => {
 };
 
 // update order
-const updateOrder = async (req, res) => {
+const updateOrderStauts = async (req, res) => {
   const { id } = req.params;
-  const update = req.body;
+  const { status } = req.body;
   try {
     const order = await Order.findByPk(id);
     if (!order) {
       res.status(400).json({ error: "User does not exits." });
       return;
     }
-    await order.update(update);
+    await order.update({ status: status });
     return res.status(200).json(order);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -60,7 +64,7 @@ const updateOrder = async (req, res) => {
 
 module.exports = {
   createOrder,
-  updateOrder,
+  updateOrderStauts,
   getOrderList,
   getUserOrderList,
 };

@@ -21,6 +21,16 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
+      sub_total: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0.0,
+      },
+      shipping: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 5.0,
+      },
       total_amount: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
@@ -29,6 +39,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM,
         values: ["Pending", "Paid", "Shipped", "Delivered", "Cancelled"],
         allowNull: false,
+      },
+      stripe_checkout_id: {
+        type: DataTypes.STRING,
+        unique: true,
       },
     },
     {

@@ -9,9 +9,11 @@ const orderRoutes = require("./orderRouter");
 const orderItemRoutes = require("./orderItemRouter");
 const reviewRoutes = require("./reviewRouter");
 const cartRoutes = require("./cartRouter");
+const paymentRoutes = require("./paymentRouter");
 
 router.use("/cart", cartRoutes);
 router.use("/categories", categoryRoutes);
+router.use("/payment", paymentRoutes);
 router.use("/productimage", productImageRoutes);
 router.use("/products", productRoutes);
 router.use("/productsize", productSizeRoutes);

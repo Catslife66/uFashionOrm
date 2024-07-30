@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const BASE_URL = "http://localhost:4000";
 const API_URL = "/api/orders";
 
@@ -31,10 +33,21 @@ const getMyOrders = async () => {
   return res.json();
 };
 
+const initiateOrder = async (data, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = await axios.post(API_URL, data, config);
+  return res.data;
+};
+
 const orderService = {
   getOrders,
   getSingleOrder,
   getMyOrders,
+  initiateOrder,
 };
 
 export default orderService;

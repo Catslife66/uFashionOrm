@@ -3,13 +3,13 @@ const router = express.Router();
 const {
   getOrderList,
   createOrder,
-  updateOrder,
+  updateOrderStauts,
   getUserOrderList,
 } = require("../controllers/orderController");
 
 router.get("/", getOrderList);
 router.post("/create", createOrder);
-router.patch("/:id", updateOrder);
+router.patch("/:id", updateOrderStauts);
 router.get("/my", getUserOrderList);
 
 module.exports = router;

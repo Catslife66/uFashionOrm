@@ -1,5 +1,4 @@
 import axios from "axios";
-import productSizeService from "./productSizeService";
 
 const API_URL = "/api/cart";
 

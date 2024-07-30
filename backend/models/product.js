@@ -1,6 +1,8 @@
 "use strict";
 const { Model } = require("sequelize");
 const slugify = require("slugify");
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+const stripe = require("stripe")(STRIPE_SECRET_KEY);
 
 module.exports = (sequelize, DataTypes) => {
   class Product extends Model {
@@ -31,10 +33,25 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
+      origin_price: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: false,
+        defaultValue: 0.0,
+      },
       price: {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: false,
         defaultValue: 0.0,
+      },
+      stripe_price: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      stripe_product_id: {
+        type: DataTypes.STRING,
+      },
+      stripe_price_id: {
+        type: DataTypes.STRING,
       },
       category_id: {
         type: DataTypes.INTEGER,
@@ -47,10 +64,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false,
-      },
-      sales_price: {
-        type: DataTypes.DECIMAL(5, 2),
-        allowNull: true,
       },
     },
     {
@@ -68,6 +81,78 @@ module.exports = (sequelize, DataTypes) => {
   Product.addHook("beforeSave", (product, options) => {
     if (product.name) {
       product.slug = slugify(product.name, { lower: true });
+    }
+  });
+
+  Product.addHook("afterCreate", async (product, options) => {
+    try {
+      const stripe_product = await stripe.products.create({
+        name: product.name,
+      });
+      product.stripe_product_id = stripe_product.id;
+
+      if (product.price) {
+        const stripe_price = await stripe.prices.create({
+          product: product.stripe_product_id,
+          unit_amount: Math.round(product.price * 100),
+          currency: "gbp",
+        });
+        product.stripe_price_id = stripe_price.id;
+        product.stripe_price = stripe_price.unit_amount;
+      }
+
+      await Product.update(
+        {
+          stripe_product_id: product.stripe_product_id,
+          stripe_price_id: product.stripe_price_id,
+          stripe_price: product.stripe_price,
+        },
+        {
+          where: { id: product.id },
+        }
+      );
+    } catch (error) {
+      console.error("Error creating Stripe product or price:", error.message);
+    }
+  });
+
+  Product.addHook("afterUpdate", async (product, options) => {
+    try {
+      if (product.changed("price") || !product.stripe_price_id) {
+        if (!product.stripe_product_id) {
+          const stripe_product = await stripe.products.create({
+            name: product.name,
+          });
+          product.stripe_product_id = stripe_product.id;
+        }
+
+        const stripe_price = await stripe.prices.create({
+          product: product.stripe_product_id,
+          unit_amount: Math.round(product.price * 100),
+          currency: "gbp",
+        });
+        product.stripe_price_id = stripe_price.id;
+        product.stripe_price = stripe_price.unit_amount;
+
+        await Product.update(
+          {
+            stripe_product_id: product.stripe_product_id,
+            stripe_price_id: product.stripe_price_id,
+            stripe_price: product.stripe_price,
+          },
+          {
+            where: { id: product.id },
+          }
+        );
+      }
+      if (product.changed("price") && product.price < product.origin_price) {
+        await Product.update(
+          { is_onsales: true },
+          { where: { id: product.id } }
+        );
+      }
+    } catch (error) {
+      console.error("Error updating Stripe product or price:", error.message);
     }
   });
 

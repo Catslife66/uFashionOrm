@@ -52,3 +52,7 @@
   margin: 0px;
   transform: translate3d(920px, 68px, 0px);
 }
+
+.paid {
+  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300;
+}

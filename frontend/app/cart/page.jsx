@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import cookie from "js-cookie";
+import Link from "next/link";
 import { Spinner } from "flowbite-react";
 import CartItemInCart from "app/components/CartItemInCart";
 import { useAppDispatch, useAppSelector } from "lib/hooks";
@@ -139,11 +140,14 @@ const CartPage = () => {
             />
           </div>
         ) : (
-          <>
+          <div className="flex flex-col justify-center items-center">
             <p className="my-4 py-4 flex justify-center">
               There are currently no items in your basket.
             </p>
-          </>
+            <Link href="/" className="edit-btn">
+              Continue shopping
+            </Link>
+          </div>
         )}
       </div>
     </section>

@@ -12,7 +12,6 @@ export default function ProductLayout({ children }) {
   return (
     <div>
       <Header />
-      <Breadcrumbs />
       {children}
       <Footer />
     </div>

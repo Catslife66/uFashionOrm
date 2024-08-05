@@ -1,4 +1,4 @@
-const { Product, Category } = require("../models");
+const { Product, Category, ProductSize } = require("../models");
 const { Op } = require("sequelize");
 
 // get all products
@@ -58,10 +58,25 @@ const searchProducts = async (req, res) => {
   try {
     const productList = await Product.findAll({
       where: {
-        name: {
-          [Op.iLike]: `%${query}%`,
-        },
+        [Op.or]: [
+          {
+            name: {
+              [Op.iLike]: `%${query}%`,
+            },
+          },
+          {
+            "$Category.name$": {
+              [Op.iLike]: `%${query}%`,
+            },
+          },
+        ],
       },
+      include: [
+        {
+          model: Category,
+          attributes: ["name"],
+        },
+      ],
     });
     return res.status(200).json(productList);
   } catch (err) {
@@ -71,7 +86,8 @@ const searchProducts = async (req, res) => {
 
 // create a product
 const createProduct = async (req, res) => {
-  const { name, description, price, category_id } = req.body;
+  const { name, description, origin_price, price, category_id, is_onsales } =
+    req.body;
   try {
     const category = await Category.findByPk(category_id);
     if (!category) {
@@ -81,8 +97,10 @@ const createProduct = async (req, res) => {
       name: name.toLowerCase(),
       slug: "",
       description,
+      origin_price,
       price,
       category_id,
+      is_onsales,
     });
     return res.status(201).json(product);
   } catch (err) {

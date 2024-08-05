@@ -2,14 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import cookie from "js-cookie";
-import cartService from "lib/utils/cartService";
-import paymentService from "lib/utils/paymentService";
 import { useEffect, useState } from "react";
 
 const OrderSummary = ({ isAuthenticated, cartSubtotal }) => {
   const router = useRouter();
-  const token = cookie.get("token");
   const SHIPPING_COST = parseFloat(5).toFixed(2);
   const SHIPPING_THRESHOLD = 50.0;
   const [shipping, setShipping] = useState(0);
@@ -29,19 +25,9 @@ const OrderSummary = ({ isAuthenticated, cartSubtotal }) => {
     if (!isAuthenticated) {
       router.push(`/login?redirect=/cart`);
     } else {
-      try {
-        const cartData = await cartService.getMyCart(token);
-        const data = {
-          userId: cartData.user_id,
-          cartItems: cartData.CartItems,
-          cartSubtotal: cartSubtotal,
-          shipping: shipping,
-        };
-        const response = await paymentService.createPaymentSession(data);
-        router.push(response.url);
-      } catch (err) {
-        console.log(err);
-      }
+      router.push(
+        `/payment/checkout?cartSubtotal=${cartSubtotal}&shipping=${shipping}`
+      );
     }
   };
 

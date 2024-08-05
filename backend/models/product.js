@@ -36,16 +36,13 @@ module.exports = (sequelize, DataTypes) => {
       origin_price: {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: false,
-        defaultValue: 0.0,
       },
       price: {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: false,
-        defaultValue: 0.0,
       },
       stripe_price: {
         type: DataTypes.INTEGER,
-        defaultValue: 0,
       },
       stripe_product_id: {
         type: DataTypes.STRING,

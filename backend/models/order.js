@@ -4,6 +4,9 @@ module.exports = (sequelize, DataTypes) => {
   class Order extends Model {
     static associate(models) {
       Order.belongsTo(models.User, { foreignKey: "user_id" });
+      Order.belongsTo(models.ShippingAddress, {
+        foreignKey: "shipping_address_id",
+      });
       Order.hasMany(models.OrderItem, { foreignKey: "order_id" });
     }
   }
@@ -37,12 +40,20 @@ module.exports = (sequelize, DataTypes) => {
       },
       status: {
         type: DataTypes.ENUM,
-        values: ["Pending", "Paid", "Shipped", "Delivered", "Cancelled"],
+        values: ["Confirmed", "Dispatched", "Cancelled", "Pending"],
         allowNull: false,
       },
       stripe_checkout_id: {
         type: DataTypes.STRING,
         unique: true,
+      },
+      shipping_address_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "ShippingAddress",
+          key: "id",
+        },
       },
     },
     {

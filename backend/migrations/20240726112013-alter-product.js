@@ -6,7 +6,6 @@ module.exports = {
     await queryInterface.addColumn("Products", "origin_price", {
       type: Sequelize.DECIMAL(5, 2),
       allowNull: false,
-      defaultValue: 0.0,
     });
     await queryInterface.addColumn("Products", "stripe_price", {
       type: Sequelize.INTEGER,

@@ -4,12 +4,15 @@ const {
   getOrderList,
   createOrder,
   updateOrderStauts,
-  getUserOrderList,
+  getMyOrderList,
+  getOrder,
 } = require("../controllers/orderController");
+const { authenticate } = require("../middleware/authMiddleware");
 
 router.get("/", getOrderList);
 router.post("/create", createOrder);
+router.get("/my", authenticate, getMyOrderList);
+router.get("/:id", authenticate, getOrder);
 router.patch("/:id", updateOrderStauts);
-router.get("/my", getUserOrderList);
 
 module.exports = router;

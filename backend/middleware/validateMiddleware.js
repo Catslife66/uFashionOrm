@@ -102,7 +102,10 @@ const validateProductCreate = [
     .withMessage("Product name must be at least 3 characters long."),
   body("description")
     .isLength({ min: 3 })
-    .withMessage("Product name must be at least 3 characters long."),
+    .withMessage("Product description must not be empty."),
+  body("origin_price")
+    .isFloat({ gt: 0 })
+    .withMessage("Price must be a positive number"),
   body("price")
     .isFloat({ gt: 0 })
     .withMessage("Price must be a positive number"),
@@ -173,6 +176,39 @@ const validateProductSizeUpdate = [
   },
 ];
 
+const validateShippingAddressCreate = [
+  body("user_id").notEmpty().withMessage("User id cannot be empty."),
+  body("full_name").notEmpty().withMessage("Your name cannot be empty."),
+  body("contact_number")
+    .notEmpty()
+    .isLength({ max: 20 })
+    .withMessage("Your contact number cannot be empty."),
+  body("address_line1")
+    .notEmpty()
+    .withMessage("Address line 1 cannot be empty."),
+  body("town_city").notEmpty().withMessage("Town/City cannot be empty."),
+  body("postcode")
+    .notEmpty()
+    .isLength({ max: 10 })
+    .withMessage("Town/City cannot be empty."),
+];
+
+const validateShippingAddressUpdate = [
+  body("full_name").notEmpty().withMessage("Your name cannot be empty."),
+  body("contact_number")
+    .notEmpty()
+    .isLength({ max: 20 })
+    .withMessage("Your contact number cannot be empty."),
+  body("address_line1")
+    .notEmpty()
+    .withMessage("Address line 1 cannot be empty."),
+  body("town_city").notEmpty().withMessage("Town/City cannot be empty."),
+  body("postcode")
+    .notEmpty()
+    .isLength({ max: 10 })
+    .withMessage("Town/City cannot be empty."),
+];
+
 module.exports = {
   validateUserRegistration,
   validateUserLogin,
@@ -182,4 +218,6 @@ module.exports = {
   validateProductSizeUpdate,
   validateProductCreate,
   validateProductUpdate,
+  validateShippingAddressCreate,
+  validateShippingAddressUpdate,
 };

@@ -1,4 +1,4 @@
-const { User, Order } = require("../models");
+const { User, Order, OrderItem, Product, ProductSize } = require("../models");
 
 // get all orders
 const getOrderList = async (req, res) => {
@@ -11,15 +11,42 @@ const getOrderList = async (req, res) => {
 };
 
 // get user orders
-const getUserOrderList = async (req, res) => {
+const getMyOrderList = async (req, res) => {
   const userId = req.user.id;
   try {
     const user = await User.findByPk(userId);
     if (!user) {
-      res.status(400).json({ error: "You are not logged in." });
+      return res.status(400).json({ error: "You are not logged in." });
     }
     const userOrders = await Order.findAll({ where: { user_id: userId } });
     return res.status(200).json(userOrders);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+// get a single order
+const getOrder = async (req, res) => {
+  const user = req.user;
+  const { id } = req.params;
+
+  try {
+    const order = await Order.findOne({
+      where: { id: id },
+      include: {
+        model: OrderItem,
+        include: { model: ProductSize, include: { model: Product } },
+      },
+    });
+    if (!order) {
+      return res.status(404).json({ error: "No such order id" });
+    }
+    if (user.role === "admin" || order.user_id === user.id) {
+      return res.status(200).json(order);
+    }
+    return res
+      .status(400)
+      .json({ error: "Please login to read order details." });
   } catch (err) {
     return res.status(400).json({ error: err.message });
   }
@@ -66,5 +93,6 @@ module.exports = {
   createOrder,
   updateOrderStauts,
   getOrderList,
-  getUserOrderList,
+  getMyOrderList,
+  getOrder,
 };

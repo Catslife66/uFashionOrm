@@ -3,13 +3,12 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import cookie from "js-cookie";
-import { Dropdown } from "flowbite-react";
-import SingoutButton from "./SignoutButton";
 import ProductSearchForm from "./ProductSearchForm";
 import ShoppingCart from "./ShoppingCart";
 import { useAppDispatch } from "lib/hooks";
 import { fetchCartItems } from "lib/features/cart/cartSlice";
 import { fetchUserLoginStatus } from "lib/features/user/userSlice";
+import UserDropdownMenu from "./UserDropdownMenu";
 
 const Header = () => {
   const token = cookie.get("token");
@@ -61,24 +60,11 @@ const Header = () => {
             <div className="flex items-center lg:order-2">
               {user ? (
                 <>
-                  <div>Hello, </div>
-                  <Dropdown
-                    dismissOnClick={false}
-                    renderTrigger={() => (
-                      <button className="me-3 mb-3 md:mb-0 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        {user.username}
-                      </button>
-                    )}
-                  >
-                    <Dropdown.Item>
-                      <Link href="/">Homepage</Link>
-                    </Dropdown.Item>
-                    <Dropdown.Item>Settings</Dropdown.Item>
-                    <Dropdown.Item>Earnings</Dropdown.Item>
-                    <Dropdown.Item>
-                      <SingoutButton />
-                    </Dropdown.Item>
-                  </Dropdown>
+                  <div className="flex">
+                    Hello, <span>{user.username || ""}</span>
+                  </div>
+
+                  <UserDropdownMenu />
                 </>
               ) : (
                 <Link

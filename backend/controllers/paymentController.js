@@ -6,12 +6,14 @@ const {
   Product,
   CartItem,
   Cart,
+  ShippingAddress,
 } = require("../models");
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const stripe = require("stripe")(STRIPE_SECRET_KEY);
 
 const createStrpeCheckOut = async (req, res) => {
-  const { userId, cartItems, cartSubtotal, shipping } = req.body;
+  const { userId, cartItems, cartSubtotal, shipping, shipping_address_id } =
+    req.body;
 
   try {
     const user = await User.findByPk(userId);
@@ -40,6 +42,7 @@ const createStrpeCheckOut = async (req, res) => {
         userId: user.id,
         cartSubtotal,
         shipping,
+        shippingAddressId: shipping_address_id,
       },
       success_url: `${req.headers.origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.origin}/cart`,
@@ -60,12 +63,30 @@ const checkoutSuccess = async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
+    const shippingAddress = await ShippingAddress.findByPk(
+      session.metadata.shippingAddressId
+    );
+
+    if (!shippingAddress) {
+      return res
+        .status(404)
+        .json({ error: "No matching shipping address is found." });
+    }
+
     let order = await Order.findOne({
       where: { stripe_checkout_id: session.id },
-      include: {
-        model: OrderItem,
-        include: { model: ProductSize, include: { model: Product } },
-      },
+      include: [
+        {
+          model: OrderItem,
+          include: {
+            model: ProductSize,
+            include: { model: Product },
+          },
+        },
+        {
+          model: ShippingAddress,
+        },
+      ],
     });
 
     if (!order) {
@@ -76,6 +97,7 @@ const checkoutSuccess = async (req, res) => {
         total_amount: session.amount_total / 100,
         status: "Paid",
         stripe_checkout_id: session.id,
+        shipping_address_id: shippingAddress.id,
       });
 
       const cart = await Cart.findOne({

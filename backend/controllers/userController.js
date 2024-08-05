@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
-const { User } = require("../models");
+const { User, ShippingAddress } = require("../models");
 
 // get all users
 const getUserList = async (req, res) => {
@@ -119,10 +119,121 @@ const loginAdmin = async (req, res) => {
   }
 };
 
+// create user shipping address
+const createShippingAddress = async (req, res) => {
+  const user_id = req.user.id;
+  const {
+    full_name,
+    contact_number,
+    address_line1,
+    address_line2,
+    town_city,
+    postcode,
+    county,
+  } = req.body;
+  try {
+    if (!user_id) {
+      return res
+        .status(404)
+        .json({ error: "Please login in to create a shipping address." });
+    }
+
+    const user = await User.findByPk(user_id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const shippingAddress = await ShippingAddress.create({
+      user_id,
+      full_name,
+      contact_number,
+      address_line1,
+      address_line2,
+      town_city,
+      postcode: postcode.toUpperCase(),
+      county,
+    });
+    return res.status(201).json(shippingAddress);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+// delete user shipping address
+const deleteShippingAddress = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const address = await ShippingAddress.findByPk(id);
+    if (!address) {
+      return res.status(404).json({ error: "This address is not found." });
+    }
+    await address.destroy();
+    return res
+      .status(200)
+      .json({ message: `Address id ${address.id} is deleted.` });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+// update user shipping address
+const updateShippingAddress = async (req, res) => {
+  const { id } = req.params;
+  const {
+    full_name,
+    contact_number,
+    address_line1,
+    address_line2,
+    town_city,
+    postcode,
+    county,
+  } = req.body;
+  try {
+    const address = await ShippingAddress.findByPk(id);
+    if (!address) {
+      return res.status(404).json({ error: "This address is not found." });
+    }
+    address.full_name = full_name;
+    address.contact_number = contact_number;
+    address.address_line1 = address_line1;
+    address.address_line2 = address_line2;
+    address.town_city = town_city;
+    address.postcode = postcode.toUpperCase();
+    address.county = county;
+    await address.save();
+    return res.status(200).json(address);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+const getUserShippingAddress = async (req, res) => {
+  const user_id = req.user.id;
+  try {
+    if (!user_id) {
+      return res.status(400).json({ error: "User must be logged in." });
+    }
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      return res.status(404).json({ error: "User is not found." });
+    }
+    const addresses = await ShippingAddress.findAll({
+      where: { user_id: user.id },
+    });
+    return res.status(200).json(addresses);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
 module.exports = {
   getUserList,
   getUser,
   registerUser,
   loginUser,
   loginAdmin,
+  createShippingAddress,
+  updateShippingAddress,
+  deleteShippingAddress,
+  getUserShippingAddress,
 };

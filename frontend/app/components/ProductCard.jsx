@@ -1,7 +1,17 @@
+"use client";
+
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
+import { Modal } from "flowbite-react";
+import AddToCartForm from "./AddToCartForm";
 
 const ProductCard = ({ product }) => {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleClick = () => {
+    setShowModal(true);
+  };
+
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
       <div className="h-56 w-full">
@@ -109,8 +119,11 @@ const ProductCard = ({ product }) => {
               £ {product.price}
             </p>
           </div>
-
-          <button type="button" className="inline-flex items-center submit-btn">
+          <button
+            type="button"
+            className="inline-flex items-center submit-btn"
+            onClick={handleClick}
+          >
             <svg
               className="-ms-2 me-2 h-5 w-5"
               aria-hidden="true"
@@ -130,6 +143,25 @@ const ProductCard = ({ product }) => {
             </svg>
             Add to cart
           </button>
+
+          <Modal show={showModal} onClose={() => setShowModal(false)}>
+            <Modal.Header>{product.name}</Modal.Header>
+            <Modal.Body>
+              <div className="space-y-8">
+                <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
+                  {product.description}
+                </p>
+                <img
+                  src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg"
+                  alt=""
+                  width={200}
+                />
+                <div>
+                  <AddToCartForm productId={product.id} />
+                </div>
+              </div>
+            </Modal.Body>
+          </Modal>
         </div>
       </div>
     </div>

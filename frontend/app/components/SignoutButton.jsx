@@ -1,14 +1,18 @@
 import cookie from "js-cookie";
 import { useRouter } from "next/navigation";
 
-const LogoutPage = () => {
+const SignoutButton = ({ role }) => {
   const token = cookie.get("token");
   const router = useRouter();
 
   const handleClick = () => {
     if (token) {
       cookie.remove("token");
-      router.push("/login");
+      if (role === "user") {
+        router.push("/login");
+      } else if (role === "admin") {
+        router.push("/admin/login");
+      }
     } else {
       console.log("Something went wrong.");
     }
@@ -24,4 +28,4 @@ const LogoutPage = () => {
   );
 };
 
-export default LogoutPage;
+export default SignoutButton;

@@ -1,9 +1,74 @@
-const { User, Order, OrderItem, Product, ProductSize } = require("../models");
+const {
+  User,
+  Order,
+  OrderItem,
+  Product,
+  ProductSize,
+  ShippingAddress,
+} = require("../models");
+const { Op } = require("sequelize");
 
 // get all orders
 const getOrderList = async (req, res) => {
+  const { status, duration } = req.query;
+  const userId = req.user.id;
+
+  let filters = {};
+
   try {
-    const orderList = await Order.findAll();
+    const user = await User.findByPk(userId);
+    if (user.role !== "adminUser" && user.role !== "superUser") {
+      filters.user_id = user.id;
+    }
+  } catch (err) {
+    return res
+      .status(400)
+      .json({
+        error: "Unauthenticated users are not allowed to view this content.",
+      });
+  }
+
+  if (status && status !== "all") {
+    filters.status = status;
+  }
+
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+
+  if (duration && duration !== "all") {
+    let dateRange;
+
+    switch (duration) {
+      case "this week":
+        dateRange = [
+          new Date(today.setDate(today.getDate() - today.getDay())),
+          new Date(today.setDate(today.getDate() - today.getDay() + 6)),
+        ];
+        break;
+      case "this month":
+        dateRange = [new Date(year, month, 1), new Date(year, month + 1, 0)];
+        break;
+      case "last 3 months":
+        dateRange = [new Date(year, month - 3, 1), new Date(year, month, 0)];
+        break;
+      case "last 6 months":
+        dateRange = [new Date(year, month - 6, 1), new Date(year, month, 0)];
+        break;
+      default:
+        dateRange = null;
+        break;
+    }
+
+    if (dateRange) {
+      filters.createdAt = {
+        [Op.between]: dateRange,
+      };
+    }
+  }
+
+  try {
+    const orderList = await Order.findAll({ where: filters });
     return res.status(200).json(orderList);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -13,6 +78,7 @@ const getOrderList = async (req, res) => {
 // get user orders
 const getMyOrderList = async (req, res) => {
   const userId = req.user.id;
+
   try {
     const user = await User.findByPk(userId);
     if (!user) {
@@ -33,15 +99,22 @@ const getOrder = async (req, res) => {
   try {
     const order = await Order.findOne({
       where: { id: id },
-      include: {
-        model: OrderItem,
-        include: { model: ProductSize, include: { model: Product } },
-      },
+      include: [
+        {
+          model: OrderItem,
+          include: { model: ProductSize, include: { model: Product } },
+        },
+        { model: ShippingAddress },
+      ],
     });
     if (!order) {
       return res.status(404).json({ error: "No such order id" });
     }
-    if (user.role === "admin" || order.user_id === user.id) {
+    if (
+      user.role === "adminUser" ||
+      user.role === "superUser" ||
+      order.user_id === user.id
+    ) {
       return res.status(200).json(order);
     }
     return res
@@ -89,10 +162,69 @@ const updateOrderStauts = async (req, res) => {
   }
 };
 
+// my order filters
+const filterMyOrders = async (req, res) => {
+  const userId = req.user.id;
+  const { status, duration } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ error: "Please login to see your orders." });
+  }
+
+  let filters = { user_id: userId };
+
+  if (status && status !== "all") {
+    filters.status = status;
+  }
+
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+
+  let dateRange;
+
+  switch (duration) {
+    case "this week":
+      dateRange = [
+        new Date(today.setDate(today.getDate() - today.getDay())),
+        new Date(today.setDate(today.getDate() - today.getDay() + 6)),
+      ];
+      break;
+    case "this month":
+      dateRange = [new Date(year, month, 1), new Date(year, month + 1, 0)];
+      break;
+    case "last 3 months":
+      dateRange = [new Date(year, month - 3, 1), new Date(year, month, 0)];
+      break;
+    case "last 6 months":
+      dateRange = [new Date(year, month - 6, 1), new Date(year, month, 0)];
+      break;
+    default:
+      dateRange = null;
+      break;
+  }
+
+  if (dateRange) {
+    filters.createdAt = {
+      [Op.between]: dateRange,
+    };
+  }
+
+  try {
+    const orders = await Order.findAll({
+      where: filters,
+    });
+    return res.status(200).json(orders);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createOrder,
   updateOrderStauts,
   getOrderList,
   getMyOrderList,
   getOrder,
+  filterMyOrders,
 };

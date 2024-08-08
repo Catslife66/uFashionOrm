@@ -2,13 +2,8 @@ import axios from "axios";
 
 const API_URL = "/api/categories";
 
-const getCategoryList = async (token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-  const response = await axios.get(API_URL, config);
+const getCategoryList = async () => {
+  const response = await axios.get(API_URL);
   return response.data;
 };
 

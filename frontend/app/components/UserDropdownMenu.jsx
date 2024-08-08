@@ -10,11 +10,11 @@ const UserDropdownMenu = () => {
       <button
         onMouseEnter={() => setIsHidden(false)}
         onMouseLeave={() => setIsHidden(true)}
-        className="hover:bg-blue-200 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-2.5 text-center inline-flex items-center dark:bg-blue-6200 dark:hover:bg-blue-200 dark:focus:ring-blue-300"
+        className="flex flex-row py-2 px-3 text-gray-700 hover:text-blue-700 md:hover:bg-transparent md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-blue-500 md:dark:hover:bg-transparent"
         type="button"
       >
         <svg
-          className="w-6 h-6 text-gray-800 dark:text-white"
+          className="w-6 h-6 dark:text-white"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -28,18 +28,18 @@ const UserDropdownMenu = () => {
             d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
           />
         </svg>
-        <span className="px-2">My Account</span>
+        <span className="ms-1">My Account</span>
       </button>
 
       <div
         onMouseEnter={() => setIsHidden(false)}
-        // onMouseLeave={() => setIsHidden(true)}
+        onMouseLeave={() => setIsHidden(true)}
         className={`${
           isHidden ? "hidden" : ""
-        } absolute z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700`}
+        } absolute z-10 bg-white divide-y divide-gray-100 w-44 dark:bg-gray-700`}
       >
         <ul
-          className="py-2 text-sm text-gray-700 dark:text-gray-200"
+          className="py-2 mt-4 shadow rounded-lg text-sm text-gray-700 dark:text-gray-200"
           aria-labelledby="dropdownHoverButton"
         >
           <li>
@@ -67,7 +67,7 @@ const UserDropdownMenu = () => {
             </Link>
           </li>
           <li>
-            <SingoutButton />
+            <SingoutButton role={"user"} />
           </li>
         </ul>
       </div>

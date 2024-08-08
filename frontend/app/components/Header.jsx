@@ -9,11 +9,14 @@ import { useAppDispatch } from "lib/hooks";
 import { fetchCartItems } from "lib/features/cart/cartSlice";
 import { fetchUserLoginStatus } from "lib/features/user/userSlice";
 import UserDropdownMenu from "./UserDropdownMenu";
+import categoryService from "lib/utils/categoryService";
 
 const Header = () => {
   const token = cookie.get("token");
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isHidden, setIsHidden] = useState(true);
+  const [categories, setCategories] = useState([]);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -38,10 +41,25 @@ const Header = () => {
     }
   }, [isAuthenticated, token, dispatch]);
 
+  useEffect(() => {
+    async function fetchCategoryData() {
+      try {
+        const data = await categoryService.getCategoryList();
+        const categoryData = data.filter(
+          (cateogry) => cateogry.name !== "operation"
+        );
+        setCategories(categoryData);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    fetchCategoryData();
+  }, []);
+
   return (
     <header>
       <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
-        <div className="flex justify-between items-center mx-auto max-w-screen-xl">
+        <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
           <div className="flex">
             <Link href="/" className="flex items-center mr-4">
               <img
@@ -58,62 +76,39 @@ const Header = () => {
 
           <div className="flex">
             <div className="flex items-center lg:order-2">
-              {user ? (
-                <>
-                  <div className="flex">
-                    Hello, <span>{user.username || ""}</span>
-                  </div>
-
-                  <UserDropdownMenu />
-                </>
-              ) : (
-                <Link
-                  href="/login"
-                  className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-                >
-                  Log in
-                </Link>
-              )}
-
               <div
-                id="dropdown"
-                className="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
+                className="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1 mr-4"
+                id="mobile-menu-2"
               >
-                <ul
-                  className="py-2 text-sm text-gray-700 dark:text-gray-200"
-                  aria-labelledby="dropdownDefaultButton"
-                >
-                  <li>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                    >
-                      Dashboard
+                <ul className="flex flex-col items-center mt-4 font-medium lg:flex-row xl:space-x-8 lg:space-x-4 lg:mt-0">
+                  <li onMouseEnter={() => setIsHidden(false)}>
+                    <a href="#" className="nav-menu-link">
+                      Category
                     </a>
                   </li>
                   <li>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                    >
-                      Settings
+                    <a href="#" className="nav-menu-link">
+                      Company
                     </a>
                   </li>
                   <li>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                    >
-                      Earnings
+                    <a href="#" className="nav-menu-link">
+                      Features
                     </a>
                   </li>
                   <li>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                    >
-                      Sign out
-                    </a>
+                    {user ? (
+                      <div className="flex flex-row items-center">
+                        <UserDropdownMenu />
+                      </div>
+                    ) : (
+                      <Link href="/login" className="nav-menu-link">
+                        Log in
+                      </Link>
+                    )}
+                  </li>
+                  <li>
+                    <ShoppingCart />
                   </li>
                 </ul>
               </div>
@@ -152,49 +147,52 @@ const Header = () => {
                 </svg>
               </button>
             </div>
+          </div>
+        </div>
 
-            <ShoppingCart />
-
-            <div
-              className="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1 mr-4"
-              id="mobile-menu-2"
+        {/* mega menu dropdown */}
+        <div
+          onMouseLeave={() => setIsHidden(true)}
+          onMouseEnter={() => setIsHidden(false)}
+          className={`${
+            isHidden ? "hidden" : ""
+          } flex justify-center items-center absolute left-0 mt-1 bg-white border-gray-200 z-10 w-full border-y dark:bg-gray-800 dark:border-gray-600`}
+        >
+          <div className="max-w-screen-xl w-full px-4 py-5 mx-auto text-gray-900 dark:text-white md:px-6">
+            <ul
+              aria-labelledby="mega-menu-full-dropdown-button"
+              className="grid grid-cols-4 gap-4"
             >
-              <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-                <li>
-                  <a
-                    href="#"
-                    className="block py-2 pr-4 pl-3 text-white rounded bg-primary-700 lg:bg-transparent lg:text-primary-700 lg:p-0 dark:text-white"
-                    aria-current="page"
+              {categories.map((category) => (
+                <li key={category.id}>
+                  <Link
+                    href={`/products/search?query=${category.name}`}
+                    className="inline-flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
-                    Home
-                  </a>
+                    <svg
+                      className="w-6 h-6 text-gray-800 dark:text-white"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M16.153 19 21 12l-4.847-7H3l4.848 7L3 19h13.153Z"
+                      />
+                    </svg>
+                    <div className="font-semibold text-sm ms-2">
+                      {category.name.toUpperCase()}
+                    </div>
+                  </Link>
                 </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
-                  >
-                    Company
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
-                  >
-                    Marketplace
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
-                  >
-                    Features
-                  </a>
-                </li>
-              </ul>
-            </div>
+              ))}
+            </ul>
           </div>
         </div>
       </nav>

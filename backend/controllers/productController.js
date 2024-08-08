@@ -1,4 +1,4 @@
-const { Product, Category, ProductSize } = require("../models");
+const { Product, Category } = require("../models");
 const { Op } = require("sequelize");
 
 // get all products
@@ -52,6 +52,12 @@ const searchProducts = async (req, res) => {
   if (!query) {
     const productList = await Product.findAll({
       order: [["updatedAt", "DESC"]],
+      include: [
+        {
+          model: Category,
+          attributes: ["name"],
+        },
+      ],
     });
     return res.status(200).json(productList);
   }

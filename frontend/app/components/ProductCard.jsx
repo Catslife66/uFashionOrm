@@ -109,16 +109,17 @@ const ProductCard = ({ product }) => {
         </div>
 
         <div className="mt-4 flex items-center justify-between gap-4">
-          <div className="justify-center">
+          <div className="">
             {product.is_onsales && (
-              <p className="text-sm font-extrabold leading-tight text-gray-400 line-through dark:text-white">
-                £ {product.price}
-              </p>
+              <div className="text-sm font-extrabold leading-tight text-gray-400 line-through dark:text-white">
+                £ {product.origin_price}
+              </div>
             )}
-            <p className="text-xl font-extrabold leading-tight text-gray-900 dark:text-white">
+            <div className="text-xl font-extrabold leading-tight text-gray-900 dark:text-white">
               £ {product.price}
-            </p>
+            </div>
           </div>
+
           <button
             type="button"
             className="inline-flex items-center submit-btn"

@@ -15,6 +15,8 @@ const OrderPage = () => {
   const userStatus = useAppSelector((state) => state.user.status);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [orders, setOrders] = useState([]);
+  const [status, setStatus] = useState("all");
+  const [duration, setDuration] = useState("all");
 
   useEffect(() => {
     if (token) {
@@ -34,16 +36,27 @@ const OrderPage = () => {
   useEffect(() => {
     async function fetchOrderData() {
       try {
-        const data = await orderService.getMyOrders(token);
+        const data = await orderService.getOrders(status, duration, token);
         setOrders(data);
       } catch (error) {
+        setOrders([]);
         console.error("Failed to fetch orders:", error);
       }
     }
     if (isAuthenticated) {
       fetchOrderData();
     }
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, token, status, duration]);
+
+  const handleFilterChange = async (e) => {
+    const { name, value } = e.target;
+    if (name === "status") {
+      setStatus(value);
+    }
+    if (name === "duration") {
+      setDuration(value);
+    }
+  };
 
   return (
     <section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
@@ -54,31 +67,32 @@ const OrderPage = () => {
               My orders
             </h2>
 
-            {/* <div className="mt-6 gap-4 space-y-4 sm:mt-0 sm:flex sm:items-center sm:justify-end sm:space-y-0">
+            {/* order filters */}
+            <div className="mt-6 gap-4 space-y-4 sm:mt-0 sm:flex sm:items-center sm:justify-end sm:space-y-0">
               <div>
                 <label
-                  htmlFor="order-type"
+                  htmlFor="status"
                   className="sr-only mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Select order type
+                  Select order status
                 </label>
                 <select
-                  id="order-type"
-                  className="block w-full min-w-[8rem] rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                  name="status"
+                  value={status}
+                  onChange={handleFilterChange}
+                  className="block w-full min-w-[8rem] rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 >
-                  <option selected>All orders</option>
-                  <option value="pre-order">Pre-order</option>
-                  <option value="transit">In transit</option>
+                  <option value="all">All orders</option>
                   <option value="confirmed">Confirmed</option>
+                  <option value="dispatched">Dispatched</option>
                   <option value="cancelled">Cancelled</option>
+                  <option value="pending">Pending</option>
                 </select>
               </div>
-
               <span className="inline-block text-gray-500 dark:text-gray-400">
                 {" "}
                 from{" "}
               </span>
-
               <div>
                 <label
                   htmlFor="duration"
@@ -87,26 +101,30 @@ const OrderPage = () => {
                   Select duration
                 </label>
                 <select
-                  id="duration"
-                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
+                  name="duration"
+                  value={duration}
+                  onChange={handleFilterChange}
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 >
-                  <option selected>this week</option>
+                  <option value="all">All</option>
+                  <option value="this week">this week</option>
                   <option value="this month">this month</option>
-                  <option value="last 3 months">the last 3 months</option>
-                  <option value="lats 6 months">the last 6 months</option>
-                  <option value="this year">this year</option>
+                  <option value="last 3 months">last 3 months</option>
+                  <option value="lats 6 months">last 6 months</option>
                 </select>
               </div>
-            </div> */}
+            </div>
           </div>
 
           <div className="mt-6 flow-root sm:mt-8">
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {orders.map((order) => (
-                <Fragment key={order.id}>
-                  <OrderOverviewDetail order={order} />
-                </Fragment>
-              ))}
+              {orders.length === 0 && <h2>No orders match the filter.</h2>}
+              {orders.length > 0 &&
+                orders.map((order) => (
+                  <Fragment key={order.id}>
+                    <OrderOverviewDetail order={order} />
+                  </Fragment>
+                ))}
             </div>
           </div>
 

@@ -150,7 +150,7 @@ const ShoppingCart = () => {
       <button
         onClick={clickToToggle}
         type="button"
-        className="relative inline-flex items-center rounded-lg justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium leading-none text-gray-900 dark:text-white"
+        className="relative inline-flex items-center rounded-lg justify-center p-2 text-gray-700 hover:text-blue-700 dark:hover:bg-gray-700 font-medium leading-none text-gray-900 dark:text-white"
       >
         <span className="hidden sm:flex mr-1">My Cart</span>
         <span className="sr-only">Cart</span>

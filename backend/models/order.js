@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       status: {
         type: DataTypes.ENUM,
-        values: ["Confirmed", "Dispatched", "Cancelled", "Pending"],
+        values: ["confirmed", "dispatched", "cancelled", "pending"],
         allowNull: false,
       },
       stripe_checkout_id: {

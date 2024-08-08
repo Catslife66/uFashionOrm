@@ -10,14 +10,16 @@ const CategoryManager = () => {
   const token = cookie.get("token");
   const [categories, setCategories] = useState([]);
   const router = useRouter();
+
   useEffect(() => {
     if (!token) {
       router.push("/admin/login");
     }
+
     fetchCategory();
     async function fetchCategory() {
       try {
-        const categoryList = await categoryService.getCategoryList(token);
+        const categoryList = await categoryService.getCategoryList();
         setCategories(categoryList);
       } catch (err) {
         console.log(err);

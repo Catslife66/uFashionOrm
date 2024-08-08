@@ -14,7 +14,7 @@ const {
 } = require("../middleware/validateMiddleware");
 
 // get list
-router.get("/", authenticate, isAdmin, getCategoryList);
+router.get("/", getCategoryList);
 // get an obj
 router.get("/:id", authenticate, isAdmin, getCategory);
 // create

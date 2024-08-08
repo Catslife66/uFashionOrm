@@ -10,47 +10,28 @@ import { fetchUserLoginStatus } from "lib/features/user/userSlice";
 import { Spinner } from "flowbite-react";
 
 const OrderDetailPage = ({ params, searchParams }) => {
-  const orderId = params.id;
+  const id = params.id;
   const token = cookie.get("token");
-  const dispatch = useAppDispatch();
   const router = useRouter();
-  const userStatus = useAppSelector((state) => state.user.status);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const [order, setOrder] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      if (userStatus === "idle") {
-        dispatch(fetchUserLoginStatus(token));
-      } else if (userStatus === "succeeded") {
-        setIsAuthenticated(true);
-      } else if (userStatus === "failed") {
-        setIsAuthenticated(false);
-        router.push("/login");
-        localStorage.setItem("redirectPath", `/orders/${orderId}`);
-      }
-    } else {
-      router.push("/login");
-      localStorage.setItem("redirectPath", `/orders/${orderId}`);
-    }
-  }, [token, userStatus, dispatch, router]);
-
-  useEffect(() => {
     async function fetchOrderData() {
       try {
-        const data = await orderService.getSingleOrder(orderId, token);
-        setOrder(data);
+        const res = await orderService.getSingleOrder(id, token);
+        setOrder(res);
         setIsLoading(false);
       } catch (err) {
         console.log(err);
       }
     }
-    if (isAuthenticated) {
+    if (token) {
       fetchOrderData();
     }
-    console.log(isAuthenticated, order);
-  }, [isAuthenticated, token]);
+    console.log(token);
+  }, [token, id]);
 
   if (isLoading) {
     return <Spinner />;
@@ -138,14 +119,30 @@ const OrderDetailPage = ({ params, searchParams }) => {
                     £ {order.total_amount}
                   </dd>
                 </dl>
+                <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                  <dt className="text-lg font-bold text-gray-900 dark:text-white">
+                    Order Status:
+                  </dt>
+                  <dd className="text-lg font-bold p-4 text-right text-gray-900 dark:text-white">
+                    {order.status}
+                  </dd>
+                </dl>
+                <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                  <dt className="text-lg font-bold text-gray-900 dark:text-white">
+                    Shipping Address:
+                  </dt>
+                  <dd className="text-lg font-bold p-4 text-right text-gray-900 dark:text-white">
+                    {order.ShippingAddress.full_name}
+                  </dd>
+                </dl>
               </div>
 
               <div className="flex items-center justify-center">
                 <Link
-                  href="/"
+                  href="/admin/order"
                   className="rounded-lg justify-center items-center border border-gray-200 bg-white px-5  py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
                 >
-                  Return to Shopping
+                  Return to Order List
                 </Link>
               </div>
             </div>

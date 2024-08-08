@@ -1,18 +1,18 @@
-import { Inter } from "next/font/google";
 import "../../globals.css";
-import AdminPanel from "app/components/AdminPanel";
+import AdminPanelSidebar from "app/components/AdminPanelSidebar";
 
-const inter = Inter({ subsets: ["latin"] });
+export const metadata = {
+  title: "ProductSize Manager",
+};
 
-export default function RootLayout({ children }) {
+export default function AdminLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <div className="antialiased bg-gray-50 dark:bg-gray-900">
-          <AdminPanel />
-          <main className="bg-white p-4 md:ml-64 h-auto pt-20">{children}</main>
-        </div>
-      </body>
-    </html>
+    <div className="antialiased bg-gray-50 dark:bg-gray-900">
+      <AdminPanelHeader />
+      <div className="bg-white">
+        <AdminPanelSidebar />
+        <main className="p-4 md:ml-64 h-auto pt-20">{children}</main>
+      </div>
+    </div>
   );
 }

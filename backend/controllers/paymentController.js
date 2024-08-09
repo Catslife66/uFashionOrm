@@ -95,7 +95,7 @@ const checkoutSuccess = async (req, res) => {
         shipping: session.metadata.shipping,
         sub_total: session.metadata.cartSubtotal,
         total_amount: session.amount_total / 100,
-        status: "Paid",
+        status: "confirmed",
         stripe_checkout_id: session.id,
         shipping_address_id: shippingAddress.id,
       });

@@ -9,7 +9,7 @@ const getOrders = async (status = "all", duration = "all", token) => {
     },
   };
   const res = await axios.get(
-    `${API_URL}/all?status=${status}&duration=${duration}`,
+    `${API_URL}?status=${status}&duration=${duration}`,
     config
   );
   return res.data;
@@ -45,11 +45,22 @@ const initiateOrder = async (data, token) => {
   return res.data;
 };
 
+const paginateOrders = async (page = 1, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = await axios.get(`${API_URL}/my?page=${page}&limit=10`, config);
+  return res.data;
+};
+
 const orderService = {
   getOrders,
   getSingleOrder,
   getMyOrders,
   initiateOrder,
+  paginateOrders,
 };
 
 export default orderService;

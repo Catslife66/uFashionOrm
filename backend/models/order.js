@@ -42,6 +42,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM,
         values: ["confirmed", "dispatched", "cancelled", "pending"],
         allowNull: false,
+        defaultValue: "pending",
       },
       stripe_checkout_id: {
         type: DataTypes.STRING,

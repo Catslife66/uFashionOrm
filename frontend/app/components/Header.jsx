@@ -15,8 +15,9 @@ const Header = () => {
   const token = cookie.get("token");
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isHidden, setIsHidden] = useState(true);
   const [categories, setCategories] = useState([]);
+  const [isCategoryHovered, setIsCategoryHovered] = useState(false);
+  const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -56,6 +57,24 @@ const Header = () => {
     fetchCategoryData();
   }, []);
 
+  const handleCategoryMouseEnter = () => {
+    setIsCategoryHovered(true);
+  };
+
+  const handleCategoryMouseLeave = () => {
+    setTimeout(() => {
+      setIsCategoryHovered(false);
+    }, 200);
+  };
+
+  const handleDropdownMouseEnter = () => {
+    setIsDropdownHovered(true);
+  };
+
+  const handleDropdownMouseLeave = () => {
+    setIsDropdownHovered(false);
+  };
+
   return (
     <header>
       <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
@@ -81,10 +100,14 @@ const Header = () => {
                 id="mobile-menu-2"
               >
                 <ul className="flex flex-col items-center mt-4 font-medium lg:flex-row xl:space-x-8 lg:space-x-4 lg:mt-0">
-                  <li onMouseEnter={() => setIsHidden(false)}>
-                    <a href="#" className="nav-menu-link">
+                  <li>
+                    <button
+                      className="nav-menu-link"
+                      onMouseEnter={handleCategoryMouseEnter}
+                      onMouseLeave={handleCategoryMouseLeave}
+                    >
                       Category
-                    </a>
+                    </button>
                   </li>
                   <li>
                     <a href="#" className="nav-menu-link">
@@ -98,7 +121,7 @@ const Header = () => {
                   </li>
                   <li>
                     {user ? (
-                      <div className="flex flex-row items-center">
+                      <div className="nav-menu-link">
                         <UserDropdownMenu />
                       </div>
                     ) : (
@@ -149,14 +172,13 @@ const Header = () => {
             </div>
           </div>
         </div>
-
         {/* mega menu dropdown */}
         <div
-          onMouseLeave={() => setIsHidden(true)}
-          onMouseEnter={() => setIsHidden(false)}
+          onMouseEnter={handleDropdownMouseEnter}
+          onMouseLeave={handleDropdownMouseLeave}
           className={`${
-            isHidden ? "hidden" : ""
-          } flex justify-center items-center absolute left-0 mt-1 bg-white border-gray-200 z-10 w-full border-y dark:bg-gray-800 dark:border-gray-600`}
+            isCategoryHovered || isDropdownHovered ? "" : "hidden"
+          } flex justify-center items-center absolute w-full left-0 mt-4 py-4 bg-white border-gray-200 z-10 w-full border-y dark:bg-gray-800 dark:border-gray-600`}
         >
           <div className="max-w-screen-xl w-full px-4 py-5 mx-auto text-gray-900 dark:text-white md:px-6">
             <ul

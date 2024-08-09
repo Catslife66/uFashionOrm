@@ -127,6 +127,7 @@ const AddToCartForm = ({ productId }) => {
         quantity: qty,
         productName: data.Product.name,
         productPrice: data.Product.price,
+        slug: data.Product.slug,
       };
       cartService.addToLocalStorageCart(cartData);
       let items = cartService.getLocalStorageCart();

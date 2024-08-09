@@ -133,6 +133,7 @@ const CheckoutPage = () => {
         shipping: shipping,
         shipping_address_id: finalAddressId,
       };
+      console.log(data);
       const response = await paymentService.createPaymentSession(data);
       router.push(response.url);
     } catch (err) {

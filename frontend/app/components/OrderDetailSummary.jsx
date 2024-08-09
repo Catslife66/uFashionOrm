@@ -85,7 +85,7 @@ const OrderDetailSummary = ({ token, cartSubtotal, shipping }) => {
               Total
             </dt>
             <dd className="text-base font-bold text-gray-900 dark:text-white">
-              £ {cartSubtotal + shipping}
+              £ {parseFloat(cartSubtotal + shipping).toFixed(2)}
             </dd>
           </dl>
         </div>

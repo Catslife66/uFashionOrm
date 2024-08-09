@@ -17,6 +17,8 @@ const OrderPage = () => {
   const [orders, setOrders] = useState([]);
   const [status, setStatus] = useState("all");
   const [duration, setDuration] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     if (token) {

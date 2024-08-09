@@ -10,7 +10,7 @@ const {
 } = require("../controllers/orderController");
 const { authenticate } = require("../middleware/authMiddleware");
 
-router.get("/all", authenticate, getOrderList);
+router.get("", authenticate, getOrderList);
 router.post("/create", createOrder);
 router.get("/filter", authenticate, filterMyOrders);
 router.get("/my", authenticate, getMyOrderList);

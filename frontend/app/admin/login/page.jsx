@@ -20,7 +20,6 @@ const LoginPage = () => {
       const token = response.token;
       localStorage.setItem("token", token);
       cookie.set("token", token, { expires: 1 });
-      console.log(token);
       router.push("/admin");
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {

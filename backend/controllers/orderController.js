@@ -21,11 +21,9 @@ const getOrderList = async (req, res) => {
       filters.user_id = user.id;
     }
   } catch (err) {
-    return res
-      .status(400)
-      .json({
-        error: "Unauthenticated users are not allowed to view this content.",
-      });
+    return res.status(400).json({
+      error: "Unauthenticated users are not allowed to view this content.",
+    });
   }
 
   if (status && status !== "all") {
@@ -217,6 +215,37 @@ const filterMyOrders = async (req, res) => {
     return res.status(200).json(orders);
   } catch (err) {
     return res.status(400).json({ error: err.message });
+  }
+};
+
+const orderPaginators = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
+  const userId = req.user.id;
+
+  try {
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ error: "Please login to see your orders." });
+    }
+
+    const { count, rows } = await Order.findAndCountAll({
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
+      where: { user_id: userId },
+    });
+
+    return res.json({
+      totalOrders: count,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      orders: rows,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 };
 

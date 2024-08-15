@@ -28,6 +28,8 @@ const CheckoutPage = () => {
   const [addresses, setAddresses] = useState([]);
   const [hideAddNew, setHideAddNew] = useState(true);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [formError, setFormError] = useState("");
+  const [isDisable, setIsDisable] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const userStatus = useAppSelector((state) => state.user.status);
@@ -89,7 +91,6 @@ const CheckoutPage = () => {
   const handleAddressSelection = (id) => {
     setSelectedAddressId(id);
     setHideAddNew(true);
-    console.log(id);
   };
 
   const handleSubmitOrder = async (e) => {
@@ -118,10 +119,18 @@ const CheckoutPage = () => {
           finalAddressId = res.id;
         } catch (err) {
           console.error("Error creating new address:", err);
+          setFormError(err);
+          setIsDisable(true);
         }
       } else {
-        console.error("Please fill all required fields.");
+        setFormError("Please fill all required fields.");
+        setIsDisable(true);
       }
+    }
+
+    if (!finalAddressId) {
+      setFormError("Please select a shipping address.");
+      setIsDisable(true);
     }
 
     try {
@@ -133,9 +142,29 @@ const CheckoutPage = () => {
         shipping: shipping,
         shipping_address_id: finalAddressId,
       };
-      console.log(data);
       const response = await paymentService.createPaymentSession(data);
       router.push(response.url);
+    } catch (err) {
+      setFormError(err);
+      setIsDisable(true);
+    }
+  };
+
+  const handleDeleteAddress = async (id) => {
+    try {
+      const res = await userService.deleteUserShippingAddress(id, token);
+      console.log(res.message);
+      setAddresses((prevAddresses) => {
+        const updatedAddresses = prevAddresses.filter(
+          (address) => address.id !== id
+        );
+        if (selectedAddressId === id && updatedAddresses.length > 0) {
+          setSelectedAddressId(updatedAddresses[0].id);
+        } else if (updatedAddresses.length === 0) {
+          selectedAddressId(null);
+        }
+        return updatedAddresses;
+      });
     } catch (err) {
       console.log(err);
     }
@@ -154,7 +183,7 @@ const CheckoutPage = () => {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Delivery Details
               </h2>
-
+              {formError && <p className="text-red-800">{formError}</p>}
               {/* addresses options */}
               {isLoading ? (
                 <Spinner />
@@ -162,7 +191,7 @@ const CheckoutPage = () => {
                 addresses.map((address) => (
                   <div
                     key={address.id}
-                    className="rounded-lg border border-gray-200 bg-gray-50 p-4 ps-4 dark:border-gray-700 dark:bg-gray-800"
+                    className="flex flex-row justify-between rounded-lg border border-gray-200 bg-gray-50 p-4 ps-4 dark:border-gray-700 dark:bg-gray-800"
                   >
                     <div className="flex items-start">
                       <div className="flex h-5 items-center">
@@ -195,6 +224,13 @@ const CheckoutPage = () => {
                         </p>
                       </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAddress(address.id)}
+                      className="text-sm text-gray-500 px-2 border border-gray-200 rounded hover:text-gray-800 hover:border-gray-400"
+                    >
+                      delete
+                    </button>
                   </div>
                 ))
               )}
@@ -377,7 +413,12 @@ const CheckoutPage = () => {
             <button
               onClick={handleSubmitOrder}
               type="submit"
-              className="w-full flex flex-row justify-center items-center submit-btn"
+              disabled={isDisable}
+              className={`w-full flex flex-row justify-center items-center text-white bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 ${
+                isDisable
+                  ? "cursor-not-allowed"
+                  : "hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+              }`}
             >
               <svg
                 className="w-6 h-6 text-gray-800 dark:text-white"

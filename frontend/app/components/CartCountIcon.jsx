@@ -1,6 +1,5 @@
 import { fetchCartItems } from "lib/features/cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "lib/hooks";
-import cartService from "lib/utils/cartService";
 import { useEffect, useState } from "react";
 import cookie from "js-cookie";
 

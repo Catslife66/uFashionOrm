@@ -4,6 +4,7 @@ const {
   getProductsByCategory,
   searchProducts,
   getProduct,
+  getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -16,10 +17,11 @@ const { authenticate, isAdmin } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.get("/", getProductList);
 router.get("/search", searchProducts);
+router.get("/find", getProductById);
 router.get("/category/:slug", getProductsByCategory);
 router.get("/:slug", getProduct);
+router.get("", getProductList);
 
 router.post("/", authenticate, isAdmin, validateProductCreate, createProduct);
 router.patch(

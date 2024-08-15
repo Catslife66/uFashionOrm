@@ -41,7 +41,7 @@ const CartPage = () => {
     function calculateCartTotal(items) {
       const subtotal = items.reduce((accu, item) => {
         const price = isAuthenticated
-          ? parseFloat(item.ProductSize.Product.price)
+          ? parseFloat(item.ProductSize?.Product?.price)
           : parseFloat(item.productPrice);
         return accu + item.quantity * price;
       }, 0);
@@ -84,11 +84,11 @@ const CartPage = () => {
       <CartItemInCart
         key={item.id}
         id={item.id || ""}
-        name={item.ProductSize.Product.name || ""}
+        name={item.ProductSize?.Product?.name || ""}
         qty={item.quantity || ""}
-        price={item.ProductSize.Product.price || ""}
-        stock={item.ProductSize.stock || ""}
-        size={item.ProductSize.size || ""}
+        price={item.ProductSize?.Product?.price || ""}
+        stock={item.ProductSize?.stock || ""}
+        size={item.ProductSize?.size || ""}
         isAuthenticated={isAuthenticated}
       />
     ));

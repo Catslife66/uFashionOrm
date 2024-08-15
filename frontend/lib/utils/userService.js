@@ -61,6 +61,16 @@ const createUserShippingAddress = async (data, token) => {
   return response.data;
 };
 
+const deleteUserShippingAddress = async (id, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = await axios.delete(`${API_URL}/shipping-addresses/${id}`, config);
+  return res.data;
+};
+
 const userService = {
   login,
   loginAdmin,
@@ -68,6 +78,7 @@ const userService = {
   checkLoginStatus,
   getMyShippingAddress,
   createUserShippingAddress,
+  deleteUserShippingAddress,
 };
 
 export default userService;

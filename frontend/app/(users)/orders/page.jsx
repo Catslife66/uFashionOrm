@@ -7,6 +7,7 @@ import orderService from "lib/utils/orderService";
 import OrderOverviewDetail from "app/components/OrderOverviewDetail";
 import { useRouter } from "next/navigation";
 import { fetchUserLoginStatus } from "lib/features/user/userSlice";
+import { Spinner } from "flowbite-react";
 
 const OrderPage = () => {
   const token = cookie.get("token");
@@ -19,6 +20,8 @@ const OrderPage = () => {
   const [duration, setDuration] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const LIMIT_PER_PAGE = 10;
 
   useEffect(() => {
     if (token) {
@@ -38,17 +41,27 @@ const OrderPage = () => {
   useEffect(() => {
     async function fetchOrderData() {
       try {
-        const data = await orderService.getOrders(status, duration, token);
-        setOrders(data);
+        const data = await orderService.getOrders({
+          page: currentPage,
+          limit: LIMIT_PER_PAGE,
+          status,
+          duration,
+          token,
+        });
+        setOrders(data.orders);
+        setTotalPages(data.totalPages);
+        setCurrentPage(data.currentPage);
       } catch (error) {
         setOrders([]);
         console.error("Failed to fetch orders:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
     if (isAuthenticated) {
       fetchOrderData();
     }
-  }, [isAuthenticated, token, status, duration]);
+  }, [isAuthenticated, currentPage, token, status, duration]);
 
   const handleFilterChange = async (e) => {
     const { name, value } = e.target;
@@ -59,6 +72,16 @@ const OrderPage = () => {
       setDuration(value);
     }
   };
+
+  const handlePageChange = (page) => {
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
@@ -118,9 +141,12 @@ const OrderPage = () => {
             </div>
           </div>
 
+          {/* order list */}
           <div className="mt-6 flow-root sm:mt-8">
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {orders.length === 0 && <h2>No orders match the filter.</h2>}
+              {orders.length === 0 && (
+                <h2>No orders match the searching criteria.</h2>
+              )}
               {orders.length > 0 &&
                 orders.map((order) => (
                   <Fragment key={order.id}>
@@ -137,9 +163,14 @@ const OrderPage = () => {
           >
             <ul className="flex h-8 items-center -space-x-px text-sm">
               <li>
-                <a
-                  href="#"
-                  className="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400  ${
+                    currentPage === 1
+                      ? "cursor-not-allowed"
+                      : "hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white"
+                  }`}
                 >
                   <span className="sr-only">Previous</span>
                   <svg
@@ -159,53 +190,31 @@ const OrderPage = () => {
                       d="m15 19-7-7 7-7"
                     />
                   </svg>
-                </a>
+                </button>
               </li>
+              {Array.from({ length: totalPages }, (_, index) => {
+                <li key={index + 1}>
+                  <button
+                    onClick={() => handlePageChange(index + 1)}
+                    className={`flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${
+                      currentPage === index + 1
+                        ? "bg-blue-50 text-blue-600"
+                        : ""
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                </li>;
+              })}
               <li>
-                <a
-                  href="#"
-                  className="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  1
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  2
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  aria-current="page"
-                  className="z-10 flex h-8 items-center justify-center border border-primary-300 bg-primary-50 px-3 leading-tight text-primary-600 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                >
-                  3
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  ...
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  100
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400  ${
+                    currentPage === totalPages
+                      ? "cursor-not-allowed"
+                      : "hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white"
+                  }`}
                 >
                   <span className="sr-only">Next</span>
                   <svg
@@ -225,7 +234,7 @@ const OrderPage = () => {
                       d="m9 5 7 7-7 7"
                     />
                   </svg>
-                </a>
+                </button>
               </li>
             </ul>
           </nav>

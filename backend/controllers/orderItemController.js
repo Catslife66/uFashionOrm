@@ -18,6 +18,23 @@ const getItemsInOrder = async (req, res) => {
   }
 };
 
+const getOrderItem = async (req, res) => {
+  const { id } = req.query;
+  try {
+    const orderItem = await OrderItem.findOne({
+      where: { id: id },
+      include: { model: ProductSize },
+    });
+    if (!orderItem) {
+      res.status(404).json({ error: "Order item is not found." });
+      return;
+    }
+    return res.status(200).json(orderItem);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
 // create order item
 const createOrderItem = async (req, res) => {
   const { order_id, product_size_id, quantity, price } = req.body;
@@ -74,6 +91,7 @@ const deleteOrderItem = async (req, res) => {
 };
 
 module.exports = {
+  getOrderItem,
   createOrderItem,
   updateOrderItem,
   deleteOrderItem,

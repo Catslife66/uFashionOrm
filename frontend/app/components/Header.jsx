@@ -111,12 +111,12 @@ const Header = () => {
                   </li>
                   <li>
                     <a href="#" className="nav-menu-link">
-                      Company
+                      New Arrivals
                     </a>
                   </li>
                   <li>
                     <a href="#" className="nav-menu-link">
-                      Features
+                      Sale
                     </a>
                   </li>
                   <li>

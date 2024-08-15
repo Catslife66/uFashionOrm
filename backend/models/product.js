@@ -62,6 +62,34 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: false,
         allowNull: false,
       },
+      rating_count: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      average_rating: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0,
+      },
+      five_star_count: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      four_star_count: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      three_star_count: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      two_star_count: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      one_star_count: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
     },
     {
       sequelize,

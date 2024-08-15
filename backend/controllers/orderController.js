@@ -5,20 +5,25 @@ const {
   Product,
   ProductSize,
   ShippingAddress,
+  Review,
 } = require("../models");
 const { Op } = require("sequelize");
 
 // get all orders
 const getOrderList = async (req, res) => {
-  const { status, duration } = req.query;
+  const page = parseInt(req.query.page);
+  const limit = parseInt(req.query.limit);
+  const status = req.query.status;
+  const duration = req.query.duration;
+  const offset = (page - 1) * limit;
   const userId = req.user.id;
 
-  let filters = {};
+  let whereClause = {};
 
   try {
     const user = await User.findByPk(userId);
     if (user.role !== "adminUser" && user.role !== "superUser") {
-      filters.user_id = user.id;
+      whereClause.user_id = user.id;
     }
   } catch (err) {
     return res.status(400).json({
@@ -27,7 +32,7 @@ const getOrderList = async (req, res) => {
   }
 
   if (status && status !== "all") {
-    filters.status = status;
+    whereClause.status = status;
   }
 
   const today = new Date();
@@ -59,31 +64,26 @@ const getOrderList = async (req, res) => {
     }
 
     if (dateRange) {
-      filters.createdAt = {
+      whereClause.createdAt = {
         [Op.between]: dateRange,
       };
     }
   }
 
   try {
-    const orderList = await Order.findAll({ where: filters });
-    return res.status(200).json(orderList);
-  } catch (err) {
-    return res.status(400).json({ error: err.message });
-  }
-};
+    const { count, rows } = await Order.findAndCountAll({
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
+    });
 
-// get user orders
-const getMyOrderList = async (req, res) => {
-  const userId = req.user.id;
-
-  try {
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return res.status(400).json({ error: "You are not logged in." });
-    }
-    const userOrders = await Order.findAll({ where: { user_id: userId } });
-    return res.status(200).json(userOrders);
+    return res.json({
+      totalOrders: count,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      orders: rows,
+    });
   } catch (err) {
     return res.status(400).json({ error: err.message });
   }
@@ -100,7 +100,10 @@ const getOrder = async (req, res) => {
       include: [
         {
           model: OrderItem,
-          include: { model: ProductSize, include: { model: Product } },
+          include: [
+            { model: ProductSize, include: { model: Product } },
+            { model: Review },
+          ],
         },
         { model: ShippingAddress },
       ],
@@ -160,100 +163,9 @@ const updateOrderStauts = async (req, res) => {
   }
 };
 
-// my order filters
-const filterMyOrders = async (req, res) => {
-  const userId = req.user.id;
-  const { status, duration } = req.query;
-
-  if (!userId) {
-    return res.status(400).json({ error: "Please login to see your orders." });
-  }
-
-  let filters = { user_id: userId };
-
-  if (status && status !== "all") {
-    filters.status = status;
-  }
-
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-
-  let dateRange;
-
-  switch (duration) {
-    case "this week":
-      dateRange = [
-        new Date(today.setDate(today.getDate() - today.getDay())),
-        new Date(today.setDate(today.getDate() - today.getDay() + 6)),
-      ];
-      break;
-    case "this month":
-      dateRange = [new Date(year, month, 1), new Date(year, month + 1, 0)];
-      break;
-    case "last 3 months":
-      dateRange = [new Date(year, month - 3, 1), new Date(year, month, 0)];
-      break;
-    case "last 6 months":
-      dateRange = [new Date(year, month - 6, 1), new Date(year, month, 0)];
-      break;
-    default:
-      dateRange = null;
-      break;
-  }
-
-  if (dateRange) {
-    filters.createdAt = {
-      [Op.between]: dateRange,
-    };
-  }
-
-  try {
-    const orders = await Order.findAll({
-      where: filters,
-    });
-    return res.status(200).json(orders);
-  } catch (err) {
-    return res.status(400).json({ error: err.message });
-  }
-};
-
-const orderPaginators = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const offset = (page - 1) * limit;
-  const userId = req.user.id;
-
-  try {
-    if (!userId) {
-      return res
-        .status(400)
-        .json({ error: "Please login to see your orders." });
-    }
-
-    const { count, rows } = await Order.findAndCountAll({
-      limit: limit,
-      offset: offset,
-      order: [["createdAt", "DESC"]],
-      where: { user_id: userId },
-    });
-
-    return res.json({
-      totalOrders: count,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page,
-      orders: rows,
-    });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
-
 module.exports = {
   createOrder,
   updateOrderStauts,
   getOrderList,
-  getMyOrderList,
   getOrder,
-  filterMyOrders,
 };

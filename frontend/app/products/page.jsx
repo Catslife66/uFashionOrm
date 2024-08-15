@@ -2,7 +2,11 @@ import React from "react";
 import ProductCard from "app/components/ProductCard";
 
 async function fetchProducts() {
-  const res = await fetch("http://localhost:4000/api/products");
+  const res = await fetch("http://localhost:4000/api/products", {
+    next: {
+      revalidate: 3600,
+    },
+  });
   if (!res.ok) {
     console.log("failed to response");
   }

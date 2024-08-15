@@ -1,5 +1,6 @@
 import cartService from "lib/utils/cartService";
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 
 const OrderDetailSummary = ({ token, cartSubtotal, shipping }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -30,20 +31,20 @@ const OrderDetailSummary = ({ token, cartSubtotal, shipping }) => {
         </div>
         <div className="flex flex-col">
           {cartItems.map((item) => (
-            <div key={item.id} className="flex flex-row py-2 justify-between">
+            <div key={item.id} className="flex flex-row py-2">
               <img
                 src="https://images.unsplash.com/photo-1525115450806-c4b70fd049bd?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt=""
                 width={100}
               />
 
-              <div className="py-2">
-                <a
-                  href="#"
+              <div className="py-2 ms-4">
+                <Link
+                  href={`/products/${item.ProductSize?.Product?.slug}` || ""}
                   className="truncate text-sm font-semibold leading-none text-gray-900 dark:text-white hover:underline"
                 >
                   {item.ProductSize?.Product?.name || ""}
-                </a>
+                </Link>
                 <p className="text-sm font-normal leading-none text-gray-500 dark:text-gray-400">
                   £ {item.ProductSize?.Product?.price || ""}
                 </p>
@@ -75,7 +76,7 @@ const OrderDetailSummary = ({ token, cartSubtotal, shipping }) => {
                 Shipping
               </dt>
               <dd className="text-base font-medium text-gray-900 dark:text-white">
-                {shipping === 0 ? "FREE" : `£ ${shipping}`}
+                {shipping === 0 ? "FREE" : `£ ${shipping.toFixed(2)}`}
               </dd>
             </dl>
           </div>

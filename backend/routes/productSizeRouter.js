@@ -14,7 +14,7 @@ const {
 } = require("../controllers/productSizeController");
 
 router.post(
-  "/",
+  "",
   authenticate,
   isAdmin,
   validateProductSizeCreate,

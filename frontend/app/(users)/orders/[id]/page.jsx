@@ -16,7 +16,7 @@ const OrderDetailPage = ({ params, searchParams }) => {
   const router = useRouter();
   const userStatus = useAppSelector((state) => state.user.status);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [order, setOrder] = useState({});
+  const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -49,7 +49,6 @@ const OrderDetailPage = ({ params, searchParams }) => {
     if (isAuthenticated) {
       fetchOrderData();
     }
-    console.log(isAuthenticated, order);
   }, [isAuthenticated, token]);
 
   if (isLoading) {
@@ -59,23 +58,106 @@ const OrderDetailPage = ({ params, searchParams }) => {
   return (
     <section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
       <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
-            Order summary
-          </h2>
+        <div className="mx-auto px-4 max-w-screen-xl">
+          <div className="flex flex-row justify-between px-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
+              Order summary
+            </h2>
+            <div
+              className={`items-center rounded px-4 py-2 font-bold ${order.status}`}
+            >
+              {order.status}
+            </div>
+          </div>
+          <div className="mt-4 space-y-6 px-4">
+            <div className="space-y-2">
+              <dl className="flex items-center justify-between gap-4">
+                <dt className="text-gray-500 dark:text-gray-400">Receiver</dt>
+                <dd className="px-4 text-right text-base font-bold text-gray-900 dark:text-white">
+                  {order.ShippingAddress.full_name}
+                </dd>
+              </dl>
+              <dl className="flex items-center justify-between gap-4">
+                <dt className="text-gray-500 dark:text-gray-400">Address</dt>
+                <dd className="px-4 text-right text-base font-bold text-gray-900 dark:text-white">
+                  <span>{order.ShippingAddress.address_line1}, </span>
+                  {order.ShippingAddress.address_line2 && (
+                    <span>{order.ShippingAddress.address_line2}, </span>
+                  )}
+                  {order.ShippingAddress.county && (
+                    <span>{order.ShippingAddress.county}, </span>
+                  )}
+                  <span>{order.ShippingAddress.town_city}, </span>
+                  <span>{order.ShippingAddress.postcode}</span>
+                </dd>
+              </dl>
+              <dl className="flex items-center justify-between gap-4">
+                <dt className="text-gray-500 dark:text-gray-400">
+                  Contact Number
+                </dt>
+                <dd className="px-4 text-right text-base font-bold text-gray-900 dark:text-white">
+                  {order.ShippingAddress.contact_number}
+                </dd>
+              </dl>
+              <dl className="flex items-center justify-between gap-4">
+                <dt className="text-gray-500 dark:text-gray-400">
+                  Subtotal price
+                </dt>
+                <dd className="px-4 text-right text-base font-bold text-gray-900 dark:text-white">
+                  £ {order.sub_total}
+                </dd>
+              </dl>
+
+              <dl className="flex items-center justify-between gap-4">
+                <dt className="text-gray-500 dark:text-gray-400">Shipping</dt>
+                <dd className="px-4 text-right text-base font-bold text-gray-900 dark:text-white">
+                  £ {order.shipping}
+                </dd>
+              </dl>
+
+              <dl className="flex items-center justify-between gap-4">
+                <dt className="text-gray-500 dark:text-white">Total</dt>
+                <dd className="px-4 text-right text-base font-bold text-gray-900 dark:text-white">
+                  £ {order.total_amount}
+                </dd>
+              </dl>
+            </div>
+          </div>
           <div className="mt-6 sm:mt-8">
             <div className="relative overflow-x-auto border-b border-gray-200 dark:border-gray-800">
               <table className="w-full text-left font-medium text-gray-900 dark:text-white md:table-fixed">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" className="px-6 py-3">
+                      Product
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Size
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Quantity
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Price
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                   {order.OrderItems.length > 0 &&
                     order.OrderItems.map((item) => (
-                      <tr key={item.id}>
-                        <td className="whitespace-nowrap py-4 md:w-[384px]">
+                      <tr
+                        key={item.id}
+                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                      >
+                        <th
+                          scope="row"
+                          className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                        >
                           <div className="flex items-center gap-4">
-                            <a
-                              href="#"
-                              className="flex items-center aspect-square w-10 h-10 shrink-0"
-                            >
+                            <div className="flex items-center aspect-square w-10 h-10 shrink-0">
                               <img
                                 className="h-auto w-full max-h-full dark:hidden"
                                 src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg"
@@ -86,68 +168,44 @@ const OrderDetailPage = ({ params, searchParams }) => {
                                 src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front-dark.svg"
                                 alt="imac image"
                               />
-                            </a>
+                            </div>
                             <Link
                               href={`/products/${item.ProductSize.Product.slug}`}
                               className="hover:underline"
                             >
-                              {item.id}
+                              {item.ProductSize.Product.name}
                             </Link>
                           </div>
+                        </th>
+                        <td className="text-sm px-6 py-4">
+                          {item.ProductSize.size}
                         </td>
+                        <td className="px-6 py-4">x {item.quantity}</td>
 
-                        <td className="p-4 text-base font-normal text-gray-900 dark:text-white">
-                          x {item.quantity}
-                        </td>
-
-                        <td className="p-4 text-right text-base text-gray-900 dark:text-white">
+                        <td className="px-6 py-4">
                           £ {item.price * item.quantity}
+                        </td>
+                        <td className="px-6 py-4">
+                          {item.Review ? (
+                            <Link
+                              href={`/reviews/${item.Review.id}`}
+                              className="w-full inline-flex justify-center focus:outline-none text-green-700 border border-green-700 hover:bg-green-700 hover:text-white focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                            >
+                              View my review
+                            </Link>
+                          ) : (
+                            <Link
+                              href={`/reviews/add?orderItemId=${item.id}&productId=${item.ProductSize.Product.id}`}
+                              className="w-full inline-flex justify-center focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                            >
+                              Write a review
+                            </Link>
+                          )}
                         </td>
                       </tr>
                     ))}
                 </tbody>
               </table>
-            </div>
-            <div className="mt-4 space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <dl className="flex items-center justify-between gap-4">
-                    <dt className="text-gray-500 dark:text-gray-400">
-                      Subtotal price
-                    </dt>
-                    <dd className="px-4 text-right text-base font-bold text-gray-900 dark:text-white">
-                      £ {order.sub_total}
-                    </dd>
-                  </dl>
-
-                  <dl className="flex items-center justify-between gap-4">
-                    <dt className="text-gray-500 dark:text-gray-400">
-                      Shipping
-                    </dt>
-                    <dd className="px-4 text-right text-base font-bold text-gray-900 dark:text-white">
-                      £ {order.shipping}
-                    </dd>
-                  </dl>
-                </div>
-
-                <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                  <dt className="text-lg font-bold text-gray-900 dark:text-white">
-                    Total
-                  </dt>
-                  <dd className="text-lg font-bold p-4 text-right text-gray-900 dark:text-white">
-                    £ {order.total_amount}
-                  </dd>
-                </dl>
-              </div>
-
-              <div className="flex items-center justify-center">
-                <Link
-                  href="/"
-                  className="rounded-lg justify-center items-center border border-gray-200 bg-white px-5  py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
-                >
-                  Return to Shopping
-                </Link>
-              </div>
             </div>
           </div>
         </div>

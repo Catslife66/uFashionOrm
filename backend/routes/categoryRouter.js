@@ -14,11 +14,11 @@ const {
 } = require("../middleware/validateMiddleware");
 
 // get list
-router.get("/", getCategoryList);
+router.get("", getCategoryList);
 // get an obj
 router.get("/:id", authenticate, isAdmin, getCategory);
 // create
-router.post("/", authenticate, isAdmin, validateCategoryCreate, createCategory);
+router.post("", authenticate, isAdmin, validateCategoryCreate, createCategory);
 // update
 router.put(
   "/:id",

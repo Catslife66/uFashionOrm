@@ -1,9 +1,23 @@
-const { Product, Category } = require("../models");
+const { Product, Category, ProductImage, Review, User } = require("../models");
 const { Op } = require("sequelize");
 
 // get all products
 const getProductList = async (req, res) => {
+  // const page = parseInt(req.query.page);
+  // const limit = parseInt(req.query.limit);
+  // const offset = (page - 1) * limit;
+
   try {
+    // const { count, rows } = await Product.findAndCountAll({
+    //   limit: limit,
+    //   offset: offset,
+    //   order: [["createdAt", "DESC"]],
+    // });
+
+    // return res.status(200).json({
+    //   total: count,
+    //   products: rows,
+    // });
     const productList = await Product.findAll({
       order: [["updatedAt", "DESC"]],
     });
@@ -35,7 +49,27 @@ const getProductsByCategory = async (req, res) => {
 const getProduct = async (req, res) => {
   const { slug } = req.params;
   try {
-    const product = await Product.findOne({ where: { slug: slug } });
+    const product = await Product.findOne({
+      where: { slug: slug },
+      include: [{ model: Review, include: { model: User } }],
+    });
+    if (product) {
+      res.status(200).json(product);
+    } else {
+      return res.status(404).json({ error: "No such product." });
+    }
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+const getProductById = async (req, res) => {
+  const { prodId } = req.query;
+  try {
+    const product = await Product.findOne({
+      where: { id: prodId },
+      include: { model: ProductImage },
+    });
     if (product) {
       res.status(200).json(product);
     } else {
@@ -157,6 +191,7 @@ module.exports = {
   getProductsByCategory,
   searchProducts,
   getProduct,
+  getProductById,
   createProduct,
   updateProduct,
   deleteProduct,

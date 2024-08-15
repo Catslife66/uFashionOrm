@@ -82,7 +82,7 @@ const ShoppingCart = () => {
 
   const renderLocalStorageCart = (items) => {
     return items.map((item, index) => (
-      <div key={index} className="grid grid-cols-3 gap-2 py-2">
+      <div key={index} className="flex flex-col">
         <Link
           href={`products/${item.slug || ""}`}
           className="truncate text-sm py-1 font-semibold leading-none text-gray-900 dark:text-white hover:underline"
@@ -167,14 +167,18 @@ const ShoppingCart = () => {
             ? renderAuthenticatedCart(cartItems)
             : renderLocalStorageCart(cartItems)}
         </ul>
-        <Link
-          href="/cart"
-          className="mb-2 me-2 inline-flex w-full items-center justify-center submit-btn"
-          role="button"
-        >
-          {" "}
-          View My Cart{" "}
-        </Link>
+        {cartItems && cartItems.length > 0 ? (
+          <Link
+            href="/cart"
+            className="mb-2 me-2 inline-flex w-full items-center justify-center submit-btn"
+            role="button"
+          >
+            {" "}
+            View My Cart{" "}
+          </Link>
+        ) : (
+          <p>Your cart is currently empty.</p>
+        )}
       </div>
     </div>
   );

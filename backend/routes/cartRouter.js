@@ -10,7 +10,7 @@ const {
 const { authenticate } = require("../middleware/authMiddleware");
 
 router.get("/mycart", authenticate, getCartItems);
-router.post("/", authenticate, updateCart); // create_or_update cart
+router.post("", authenticate, updateCart); // create_or_update cart
 router.post("/update", authenticate, updateCartItemQty);
 router.delete("/item/:id", authenticate, removeCartItem);
 router.get("/item/:id", authenticate, getCartItem);

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import cookie from "js-cookie";
 import productSizeService from "lib/utils/productSizeService";
 
-const SizeStockForm = ({ id, size, isReadOnly = false }) => {
+const SizeStockForm = ({ prodId, size, isReadOnly = false }) => {
   const token = cookie.get("token");
   const [stock, setStock] = useState(0);
   const [sizeItemId, setSizeItemId] = useState(null);
@@ -12,17 +12,16 @@ const SizeStockForm = ({ id, size, isReadOnly = false }) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (token) {
+    if (token && prodId && size) {
       fetchProductSize();
     }
 
     async function fetchProductSize() {
       try {
         const sizeStock = await productSizeService.getProductSizeBySize(
-          id,
+          prodId,
           size
         );
-
         if (sizeStock) {
           setSizeItemId(sizeStock.id);
           setStock(sizeStock.stock);
@@ -31,7 +30,7 @@ const SizeStockForm = ({ id, size, isReadOnly = false }) => {
         console.log(err);
       }
     }
-  }, [id, size]);
+  }, [prodId, size]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,22 +60,21 @@ const SizeStockForm = ({ id, size, isReadOnly = false }) => {
       >
         {size}
       </label>
-      <div>
-        {error && !isReadOnly && (
-          <p className="text-xs text-orange-600">{error}</p>
-        )}
-        <input
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          type="number"
-          name={size}
-          value={stock}
-          readOnly={isReadOnly}
-          onChange={(e) => {
-            setStock(e.target.value);
-            setError("");
-          }}
-        />
-      </div>
+
+      {error && !isReadOnly && (
+        <p className="text-xs text-orange-600">{error}</p>
+      )}
+      <input
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        type="number"
+        name={size}
+        value={stock}
+        readOnly={isReadOnly}
+        onChange={(e) => {
+          setStock(e.target.value);
+          setError("");
+        }}
+      />
 
       {!isReadOnly && (
         <button

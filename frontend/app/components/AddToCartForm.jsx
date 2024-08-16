@@ -8,8 +8,10 @@ import {
   fetchCartItems,
 } from "lib/features/cart/cartSlice";
 import userService from "lib/utils/userService";
+import AddToLikeButton from "./AddToLikeButton";
 
 const AddToCartForm = ({ productId }) => {
+  const dispatch = useAppDispatch();
   const token = cookie.get("token");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedSize, setSelectedSize] = useState("M");
@@ -27,7 +29,9 @@ const AddToCartForm = ({ productId }) => {
     { id: "", size: "L", stock: 0 },
     { id: "", size: "XL", stock: 0 },
   ]);
-  const dispatch = useAppDispatch();
+  const [isOutOfStock, setIsOutOfStock] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [prodSizeId, setProdSizeId] = useState("");
 
   useEffect(() => {
     async function fetchProductSizeStock() {
@@ -49,11 +53,18 @@ const AddToCartForm = ({ productId }) => {
         setIsAuthenticated(false);
       }
     }
+    async function fetchLikeData() {
+      const data = await productSizeService.getProductSize({
+        prodId: productId,
+        size: selectedSize,
+      });
+      setProdSizeId(data.prodSizeId);
+    }
 
     if (productId) {
       fetchProductSizeStock();
+      fetchLikeData();
     }
-
     if (token) {
       fetchUserLoginStatus();
     }
@@ -64,11 +75,32 @@ const AddToCartForm = ({ productId }) => {
     setDisabledAdd(Number(qty) >= stock);
   }, [qty, stock]);
 
-  const handleSelectSize = (size, stock) => {
+  useEffect(() => {
+    async function checkIsLiked() {
+      try {
+        const data = await userService.checkProductIsLiked(prodSizeId, token);
+        setIsLiked(data.isLiked);
+        console.log(data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    if (isAuthenticated && prodSizeId !== "" && token) {
+      checkIsLiked();
+    }
+  }, [isAuthenticated, prodSizeId, token]);
+
+  const handleSelectSize = (id, size, stock) => {
     setSelectedSize(size);
+    setProdSizeId(id);
     setStock(stock);
     setErrMsg("");
     setQty(1);
+    if (stock === 0) {
+      setIsOutOfStock(true);
+    } else if (stock > 0) {
+      setIsOutOfStock(false);
+    }
   };
 
   const handleChangeQty = (e) => {
@@ -143,15 +175,27 @@ const AddToCartForm = ({ productId }) => {
 
   return (
     <>
+      <AddToLikeButton
+        isAuthenticated={isAuthenticated}
+        prodSizeId={prodSizeId}
+        isLiked={isLiked}
+        setIsLiked={setIsLiked}
+      />
+      {/* size buttons */}
       <div className="flex flex-row my-4">
         {sortedSizeStocks.map((item) => (
           <button
             key={item.size}
-            className={`mr-2 ${
-              selectedSize === item.size ? "selected-size-btn" : "size-btn"
-            }`}
-            onClick={() => handleSelectSize(item.size, item.stock)}
-            dataset={item.id}
+            className={`mr-2 
+              ${
+                item.stock === 0
+                  ? "zero-stock"
+                  : selectedSize === item.size
+                  ? "selected-size-btn"
+                  : "size-btn"
+              }
+            `}
+            onClick={() => handleSelectSize(item.id, item.size, item.stock)}
           >
             {item.size}
           </button>
@@ -165,9 +209,11 @@ const AddToCartForm = ({ productId }) => {
             disabled={disabledReduce}
             onClick={handleReduceQty}
             type="button"
-            id="decrement-button"
-            data-input-counter-decrement="quantity-input"
-            className="bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
+            className={`bg-gray-100 dark:bg-gray-700 dark:border-gray-600  border border-gray-300 rounded-s-lg p-3 h-11 ${
+              !disabledReduce
+                ? "dark:hover:bg-gray-600 hover:bg-gray-200 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
+                : ""
+            }`}
           >
             <svg
               className={`w-3 h-3 dark:text-white ${
@@ -189,9 +235,6 @@ const AddToCartForm = ({ productId }) => {
           </button>
           <input
             type="text"
-            id="quantity-input"
-            data-input-counter
-            aria-describedby="helper-text-explanation"
             value={qty}
             max={stock}
             onChange={handleChangeQty}
@@ -202,9 +245,12 @@ const AddToCartForm = ({ productId }) => {
             onClick={handleAddQty}
             disabled={disabledAdd}
             type="button"
-            id="increment-button"
-            data-input-counter-increment="quantity-input"
-            className="bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
+            className={`bg-gray-100 dark:bg-gray-700 dark:border-gray-600 border border-gray-300 rounded-e-lg p-3 h-11 
+              ${
+                !disabledAdd
+                  ? "hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
+                  : ""
+              }`}
           >
             <svg
               className={`w-3 h-3 dark:text-white ${
@@ -228,32 +274,59 @@ const AddToCartForm = ({ productId }) => {
 
         {/* Add cart button */}
         <div className="w-1/2">
-          <button
-            onClick={handleAddtoCart}
-            disabled={!canAddCart}
-            className={`w-full flex items-center justify-center ${
-              canAddCart ? "submit-btn" : "disable-submit-btn"
-            }`}
-          >
-            <svg
-              className="w-5 h-5 -ms-2 me-2"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
+          {isOutOfStock ? (
+            <button
+              type="button"
+              disabled={isOutOfStock}
+              className="w-full flex items-center justify-center out-of-stock-btn"
             >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 4h1.5L8 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm.75-3H7.5M11 7H6.312M17 4v6m-3-3h6"
-              />
-            </svg>
-            Add to cart
-          </button>
+              <svg
+                className="w-5 h-5 -ms-2 me-2"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 4h1.5L8 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm.75-3H7.5M11 7H6.312M17 4v6m-3-3h6"
+                />
+              </svg>
+              OUT OF STOCK
+            </button>
+          ) : (
+            <button
+              onClick={handleAddtoCart}
+              disabled={!canAddCart}
+              className={`w-full flex items-center justify-center ${
+                canAddCart ? "submit-btn" : "disable-submit-btn"
+              }`}
+            >
+              <svg
+                className="w-5 h-5 -ms-2 me-2"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 4h1.5L8 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm.75-3H7.5M11 7H6.312M17 4v6m-3-3h6"
+                />
+              </svg>
+              Add to cart
+            </button>
+          )}
         </div>
       </div>
     </>

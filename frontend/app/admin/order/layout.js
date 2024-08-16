@@ -1,12 +1,11 @@
 import "../../globals.css";
-import AdminPanelHeader from "app/components/AdminPanelHeader";
 import AdminPanelSidebar from "app/components/AdminPanelSidebar";
 
 export const metadata = {
   title: "Order Manager",
 };
 
-export default function AdminLayout({ children }) {
+export default function OrderLayout({ children }) {
   return (
     <div>
       <AdminPanelSidebar />

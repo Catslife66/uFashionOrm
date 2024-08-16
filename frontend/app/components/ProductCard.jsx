@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Modal } from "flowbite-react";
 import AddToCartForm from "./AddToCartForm";
+import AddToLikeButton from "./AddToLikeButton";
 
 const ProductCard = ({ product }) => {
   const [showModal, setShowModal] = useState(false);
@@ -15,18 +16,21 @@ const ProductCard = ({ product }) => {
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
       <div className="h-56 w-full">
-        <a href="#">
-          <img
-            className="mx-auto h-full dark:hidden"
-            src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg"
-            alt=""
-          />
-          <img
-            className="mx-auto hidden h-full dark:block"
-            src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front-dark.svg"
-            alt=""
-          />
-        </a>
+        <Link href={`/products/${product.slug}`}>
+          {product.ProductImages[0] ? (
+            <img
+              src={product.ProductImages[0].image_url}
+              className="mx-auto h-full dark:hidden"
+              alt={product.ProductImages[0].name}
+            />
+          ) : (
+            <img
+              className="mx-auto h-full dark:hidden"
+              src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg"
+              alt="placeholder"
+            />
+          )}
+        </Link>
       </div>
       <div className="flex flex-col pt-6">
         <div className="mb-4 flex items-center justify-between gap-4">

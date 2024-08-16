@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="bg-white items-center mx-auto max-w-screen-xl">
@@ -11,8 +13,8 @@ export default function Home() {
               From checkout to global sales tax compliance, companies around the
               world use Flowbite to simplify their payment stack.
             </p>
-            <a
-              href="#"
+            <Link
+              href="/"
               className="inline-flex items-center justify-center px-5 py-3 mr-3 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
             >
               Shop Now
@@ -28,7 +30,7 @@ export default function Home() {
                   clipRule="evenodd"
                 ></path>
               </svg>
-            </a>
+            </Link>
           </div>
           <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
             <img
@@ -41,7 +43,7 @@ export default function Home() {
       </section>
 
       <section className="bg-gray-100 py-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-8">
           <h2 className="text-3xl font-bold mb-8">Shop by Categories</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-white p-4 rounded-lg shadow-lg">

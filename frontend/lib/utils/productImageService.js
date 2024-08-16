@@ -2,8 +2,8 @@ import axios from "axios";
 
 const API_URL = "/api/productimage";
 
-const getProductImagesByProduct = async (product_slug) => {
-  const response = await axios.get(`${API_URL}/product/${product_slug}`);
+const getProductImagesByProduct = async (productSlug) => {
+  const response = await axios.get(`${API_URL}/product/${productSlug}`);
   return response.data;
 };
 

@@ -15,11 +15,11 @@ const ProductManager = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!token) {
+    if (token) {
+      fetchProducts();
+    } else {
       router.push("/admin/login");
     }
-    fetchProducts();
-
     async function fetchProducts() {
       try {
         const productList = await productService.getProducts();
@@ -39,7 +39,7 @@ const ProductManager = () => {
         console.log(err);
       }
     }
-  }, []);
+  }, [token]);
 
   const handleDelete = async (id) => {
     if (token) {
@@ -118,27 +118,27 @@ const ProductManager = () => {
                     <div className="p-4">{product.price}</div>
                     <div className="col-span-2">
                       <SizeStockForm
-                        id={product.id}
+                        prodId={product.id}
                         size="xs"
                         isReadOnly={true}
                       />
                       <SizeStockForm
-                        id={product.id}
+                        prodId={product.id}
                         size="s"
                         isReadOnly={true}
                       />
                       <SizeStockForm
-                        id={product.id}
+                        prodId={product.id}
                         size="m"
                         isReadOnly={true}
                       />
                       <SizeStockForm
-                        id={product.id}
+                        prodId={product.id}
                         size="l"
                         isReadOnly={true}
                       />
                       <SizeStockForm
-                        id={product.id}
+                        prodId={product.id}
                         size="xl"
                         isReadOnly={true}
                       />
@@ -150,13 +150,13 @@ const ProductManager = () => {
                     <div className="p-4">
                       <div className="">
                         <Link
-                          href={`product/edit/${product.id}`}
+                          href={`product/edit/${product.slug}`}
                           className="flex items-center edit-btn-outline"
                         >
                           Edit Detail
                         </Link>
                         <Link
-                          href={`productsize/edit/${product.id}`}
+                          href={`productsize/edit/${product.slug}`}
                           className="flex items-center edit-btn-outline"
                         >
                           Edit Stock

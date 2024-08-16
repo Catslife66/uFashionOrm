@@ -7,8 +7,9 @@ import { useRouter } from "next/navigation";
 
 const UpdateProductPage = ({ params }) => {
   const token = cookie.get("token");
-  const id = params.id;
+  const slug = params.slug;
   const [product, setProduct] = useState({
+    id: "",
     name: "",
     price: "",
     description: "",
@@ -24,7 +25,7 @@ const UpdateProductPage = ({ params }) => {
 
     async function fetchProduct() {
       try {
-        const product = await productService.getSingleProduct(id, token);
+        const product = await productService.getSingleProduct(slug, token);
         setProduct(product);
         fetchCategory(product.category_id);
       } catch (err) {
@@ -43,7 +44,7 @@ const UpdateProductPage = ({ params }) => {
         console.log(err);
       }
     }
-  }, [token, id]);
+  }, [token, slug]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,7 +60,7 @@ const UpdateProductPage = ({ params }) => {
         description: product.description,
         category_id: product.category_id,
       };
-      await productService.updateProduct(id, updatedProduct, token);
+      await productService.updateProduct(product.id, updatedProduct, token);
       router.push("/admin/product");
     } catch (err) {
       console.log(err);

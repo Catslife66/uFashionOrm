@@ -1,7 +1,6 @@
 import Breadcrumbs from "app/components/Breadcrumbs";
 import ProductCard from "app/components/ProductCard";
 import React, { Fragment, Suspense } from "react";
-import { Spinner } from "flowbite-react";
 
 async function fetchProducts(query) {
   const res = await fetch(
@@ -21,16 +20,25 @@ async function fetchProducts(query) {
 
 const ProductSearchPage = async ({ params, searchParams }) => {
   const data = await fetchProducts(searchParams.query);
-  console.log(data);
-  const categoryName =
-    data.length > 0 && data[0].Category
-      ? data[0].Category.name
-      : "All Products";
+
+  const categoryName = () => {
+    if (searchParams.query === "sale") {
+      return "All sale";
+    } else if (searchParams.query === "new") {
+      return "New arrivals";
+    } else {
+      if (data.length > 0 && data[0].Category) {
+        return data[0].Category.name;
+      } else {
+        return "All Products";
+      }
+    }
+  };
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
-        <Breadcrumbs categoryName={categoryName} />
+        <Breadcrumbs categoryName={categoryName()} />
         <div className="mx-auto max-w-screen-xl px-8 2xl:px-0">
           {data.length === 0 && (
             <h3 className="flex justify-center items-center text-lg">

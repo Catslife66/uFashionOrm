@@ -20,6 +20,7 @@ const getProductList = async (req, res) => {
     // });
     const productList = await Product.findAll({
       order: [["updatedAt", "DESC"]],
+      include: [{ model: ProductImage }],
     });
     return res.status(200).json(productList);
   } catch (err) {
@@ -51,7 +52,10 @@ const getProduct = async (req, res) => {
   try {
     const product = await Product.findOne({
       where: { slug: slug },
-      include: [{ model: Review, include: { model: User } }],
+      include: [
+        { model: Review, include: { model: User } },
+        { model: ProductImage },
+      ],
     });
     if (product) {
       res.status(200).json(product);
@@ -83,20 +87,67 @@ const getProductById = async (req, res) => {
 // search products
 const searchProducts = async (req, res) => {
   const { query } = req.query;
-  if (!query) {
-    const productList = await Product.findAll({
-      order: [["updatedAt", "DESC"]],
-      include: [
-        {
-          model: Category,
-          attributes: ["name"],
-        },
-      ],
-    });
-    return res.status(200).json(productList);
-  }
+
+  let productList = [];
+
   try {
-    const productList = await Product.findAll({
+    if (!query) {
+      productList = await Product.findAll({
+        order: [["updatedAt", "DESC"]],
+        include: [
+          {
+            model: Category,
+            attributes: ["name"],
+          },
+          { model: ProductImage },
+        ],
+      });
+      return res.status(200).json(productList);
+    }
+
+    if (query === "sale") {
+      productList = await Product.findAll({
+        where: {
+          is_onsales: true,
+        },
+        include: [
+          {
+            model: Category,
+            attributes: ["name"],
+          },
+          { model: ProductImage },
+        ],
+        order: [["updatedAt", "DESC"]],
+      });
+      return res.status(200).json(productList);
+    }
+
+    if (query === "new") {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth();
+      const dateRange = [
+        new Date(year, month, 1),
+        new Date(year, month + 1, 0),
+      ];
+
+      productList = await Product.findAll({
+        where: {
+          createdAt: { [Op.between]: dateRange },
+        },
+        include: [
+          {
+            model: Category,
+            attributes: ["name"],
+          },
+          { model: ProductImage },
+        ],
+        order: [["updatedAt", "DESC"]],
+      });
+      return res.status(200).json(productList);
+    }
+
+    productList = await Product.findAll({
       where: {
         [Op.or]: [
           {
@@ -116,8 +167,10 @@ const searchProducts = async (req, res) => {
           model: Category,
           attributes: ["name"],
         },
+        { model: ProductImage },
       ],
     });
+
     return res.status(200).json(productList);
   } catch (err) {
     return res.status(400).json({ error: err.message });

@@ -71,6 +71,57 @@ const deleteUserShippingAddress = async (id, token) => {
   return res.data;
 };
 
+const createUserWishList = async (data, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = await axios.post(`${API_URL}/wishlist/my`, data, config);
+  return res.data;
+};
+
+const deleteUserWishList = async (prodSizeId, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const params = new URLSearchParams();
+  params.append("prodSizeId", prodSizeId);
+  const res = await axios.delete(
+    `${API_URL}/wishlist?${params.toString()}`,
+    config
+  );
+  return res.data;
+};
+
+const getUserWishList = async (token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = await axios.get(`${API_URL}/wishlist/my`, config);
+  return res.data;
+};
+
+const checkProductIsLiked = async (prodSizeId, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  console.log(prodSizeId);
+  const params = new URLSearchParams();
+  params.append("prodSizeId", prodSizeId);
+  const res = await axios.get(
+    `${API_URL}/wishlist?${params.toString()}`,
+    config
+  );
+  return res.data;
+};
+
 const userService = {
   login,
   loginAdmin,
@@ -79,6 +130,10 @@ const userService = {
   getMyShippingAddress,
   createUserShippingAddress,
   deleteUserShippingAddress,
+  createUserWishList,
+  deleteUserWishList,
+  getUserWishList,
+  checkProductIsLiked,
 };
 
 export default userService;

@@ -8,7 +8,7 @@ import productService from "lib/utils/productService";
 
 const EditProductSizePage = ({ params }) => {
   const token = cookie.get("token");
-  const productId = params.productId;
+  const productSlug = params.productSlug;
   const [product, setProduct] = useState({
     id: "",
     name: "",
@@ -21,13 +21,13 @@ const EditProductSizePage = ({ params }) => {
 
     async function fetchProduct() {
       try {
-        const fetchProduct = await productService.getSingleProduct(productId);
+        const fetchProduct = await productService.getSingleProduct(productSlug);
         setProduct(fetchProduct);
       } catch (err) {
         console.log(err);
       }
     }
-  }, [token, productId]);
+  }, [token, productSlug]);
 
   return (
     <section className="bg-white dark:bg-gray-900 p-3 sm:p-5 antialiased">
@@ -47,11 +47,11 @@ const EditProductSizePage = ({ params }) => {
               <div className="col-span-1">{product.id}</div>
               <div className="col-span-1">{product.name}</div>
               <div className="col-span-3">
-                <SizeStockForm id={productId} size="xs" />
-                <SizeStockForm id={productId} size="s" />
-                <SizeStockForm id={productId} size="m" />
-                <SizeStockForm id={productId} size="l" />
-                <SizeStockForm id={productId} size="xl" />
+                <SizeStockForm prodId={product.id} size="xs" />
+                <SizeStockForm prodId={product.id} size="s" />
+                <SizeStockForm prodId={product.id} size="m" />
+                <SizeStockForm prodId={product.id} size="l" />
+                <SizeStockForm prodId={product.id} size="xl" />
               </div>
             </div>
           </div>

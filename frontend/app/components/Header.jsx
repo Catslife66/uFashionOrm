@@ -110,14 +110,20 @@ const Header = () => {
                     </button>
                   </li>
                   <li>
-                    <a href="#" className="nav-menu-link">
+                    <Link
+                      href="/products/search?query=new"
+                      className="nav-menu-link"
+                    >
                       New Arrivals
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a href="#" className="nav-menu-link">
+                    <Link
+                      href="/products/search?query=sale"
+                      className="nav-menu-link"
+                    >
                       Sale
-                    </a>
+                    </Link>
                   </li>
                   <li>
                     {user ? (

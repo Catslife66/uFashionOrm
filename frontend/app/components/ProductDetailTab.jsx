@@ -1,9 +1,6 @@
-import React, { useState } from "react";
 import ReviewList from "./ReviewList";
 
-const ProductDetailTab = ({ product }) => {
-  const [activeTab, setActiveTab] = useState("Material");
-
+const ProductDetailTab = ({ product, activeTab, setActiveTab }) => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Material":
@@ -33,11 +30,6 @@ const ProductDetailTab = ({ product }) => {
             </div>
           );
         } else if (product.Reviews?.length > 0) {
-          // return product.Reviews.map((review) => (
-          //   <div className="p-4" key={review.id}>
-          //     {review}
-          //   </div>
-          // ));
           return <ReviewList productId={product.id} />;
         }
       case "Contacts":

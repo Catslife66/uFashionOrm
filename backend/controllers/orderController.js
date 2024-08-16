@@ -17,11 +17,11 @@ const getOrderList = async (req, res) => {
   const duration = req.query.duration;
   const offset = (page - 1) * limit;
   const userId = req.user.id;
-
   let whereClause = {};
 
   try {
     const user = await User.findByPk(userId);
+
     if (user.role !== "adminUser" && user.role !== "superUser") {
       whereClause.user_id = user.id;
     }

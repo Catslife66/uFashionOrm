@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
-const { User, ShippingAddress } = require("../models");
+const { User, ShippingAddress, WishList } = require("../models");
 
 // get all users
 const getUserList = async (req, res) => {
@@ -226,6 +226,98 @@ const getUserShippingAddress = async (req, res) => {
   }
 };
 
+// create wish list
+const createWishList = async (req, res) => {
+  const user_id = req.user.id;
+  const { product_size_id } = req.body;
+  try {
+    if (!user_id) {
+      return res
+        .status(404)
+        .json({ error: "Please login in to create a shipping address." });
+    }
+
+    const user = await User.findByPk(user_id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const wishList = await WishList.create({
+      user_id: user.id,
+      product_size_id: product_size_id,
+    });
+    return res.status(201).json(wishList);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+// remove wish list
+const deleteWishList = async (req, res) => {
+  const user_id = req.user.id;
+  const { prodSizeId } = req.query;
+
+  try {
+    const wishlist = await WishList.findOne({
+      where: { user_id: user_id, product_size_id: prodSizeId },
+    });
+    if (!wishlist) {
+      return res.status(404).json({ error: "Wishlist item is not found." });
+    }
+    await wishlist.destroy();
+    return res
+      .status(200)
+      .json({ message: `Wish list id ${wishlist.id} is removed.` });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+// get user wish list
+const getUserWishList = async (req, res) => {
+  const user_id = req.user.id;
+
+  try {
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const wishlist = await WishList.findAll({
+      where: { user_id: user.id },
+    });
+
+    if (!wishlist) {
+      return res.status(404).json({ error: "Wishlist item is not found." });
+    }
+    return res.status(200).json(wishlist);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+// get wish list item
+const checkProductIsLiked = async (req, res) => {
+  const user_id = req.user.id;
+  const { prodSizeId } = req.query;
+
+  try {
+    if (!user_id) {
+      return res.status(400).json({ error: "Unauthenticated user." });
+    }
+    const wishlist = await WishList.findOne({
+      where: { user_id: user_id, product_size_id: prodSizeId },
+    });
+    if (!wishlist) {
+      return res.status(200).json({ isLiked: false });
+    } else {
+      return res.status(200).json({ isLiked: true });
+    }
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
 module.exports = {
   getUserList,
   getUser,
@@ -236,4 +328,8 @@ module.exports = {
   updateShippingAddress,
   deleteShippingAddress,
   getUserShippingAddress,
+  createWishList,
+  deleteWishList,
+  getUserWishList,
+  checkProductIsLiked,
 };

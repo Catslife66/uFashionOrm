@@ -2,10 +2,12 @@
 import productImageService from "lib/utils/productImageService";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import productService from "lib/utils/productService";
 
 const ImageEditPage = ({ params }) => {
   const imageId = params.imageId;
-  const productId = params.id;
+  const productSlug = params.slug;
+  const [product, setProduct] = useState({});
   const [name, setName] = useState("");
   const [file, setFile] = useState(null);
   const [oldFileUrl, setOldFileUrl] = useState("");
@@ -15,7 +17,10 @@ const ImageEditPage = ({ params }) => {
   const router = useRouter();
 
   useEffect(() => {
-    fetchImage();
+    if (imageId && productSlug) {
+      fetchProduct();
+      fetchImage();
+    }
     async function fetchImage() {
       try {
         const img = await productImageService.getSingleImage(imageId);
@@ -25,7 +30,15 @@ const ImageEditPage = ({ params }) => {
         console.log(err);
       }
     }
-  }, [imageId]);
+    async function fetchProduct() {
+      try {
+        const data = await productService.getSingleProduct(productSlug);
+        setProduct(data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }, [imageId, productSlug]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,7 +63,7 @@ const ImageEditPage = ({ params }) => {
 
   if (isSuccess) {
     setTimeout(() => {
-      router.push(`/admin/product/${productId}/image`);
+      router.push(`/admin/product/${productSlug}/image`);
     }, 2000);
   }
 
@@ -72,13 +85,13 @@ const ImageEditPage = ({ params }) => {
             <div>
               <p className="text-sm font-medium text-gray-900">Product Id</p>
               <p className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2">
-                {productId}
+                {product.id}
               </p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900">Product Name</p>
               <p className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2">
-                some product name
+                {product.name}
               </p>
             </div>
             <div>

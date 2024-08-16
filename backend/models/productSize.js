@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       ProductSize.belongsTo(models.Product, { foreignKey: "product_id" });
       ProductSize.hasMany(models.OrderItem, { foreignKey: "product_size_id" });
       ProductSize.hasMany(models.CartItem, { foreignKey: "product_size_id" });
+      ProductSize.hasMany(models.WishList, { foreignKey: "product_size_id" });
     }
   }
   ProductSize.init(

@@ -1,6 +1,9 @@
 const { Product, ProductImage } = require("../models");
 const path = require("path");
 const fs = require("fs");
+const DEBUG = process.env.DEBUG;
+const DEV_IMAGE_BASE_URL = process.env.DEV_IMAGE_BASE_URL;
+const PROD_IMAGE_BASE_URL = process.env.PROD_IMAGE_BASE_UR;
 
 // get product images
 const getProductImages = async (req, res) => {
@@ -47,10 +50,15 @@ const createImage = async (req, res) => {
       return res.status(400).json({ error: "No such product id." });
     }
 
+    let image_url =
+      DEBUG == 1
+        ? `${DEV_IMAGE_BASE_URL}/uploads/${req.file.filename}`
+        : `${PROD_IMAGE_BASE_URL}/uploads/${req.file.filename}`;
+
     const productImage = await ProductImage.create({
       product_id,
       name,
-      image_url: `/uploads/${req.file.filename}`,
+      image_url: image_url,
     });
 
     return res.status(201).json(productImage);
@@ -72,13 +80,18 @@ const updateImage = async (req, res) => {
     }
     productImage.name = name;
 
+    let image_url =
+      DEBUG == 1
+        ? `${DEV_IMAGE_BASE_URL}/uploads/${req.file.filename}`
+        : `${PROD_IMAGE_BASE_URL}/uploads/${req.file.filename}`;
+
     if (req.file) {
       const oldImagePath = path.join(__dirname, "..", productImage.image_url);
       console.log("path" + oldImagePath);
       if (fs.existsSync(oldImagePath)) {
         fs.unlinkSync(oldImagePath);
       }
-      productImage.image_url = `/uploads/${req.file.filename}`;
+      productImage.image_url = image_url;
     }
 
     await productImage.save();

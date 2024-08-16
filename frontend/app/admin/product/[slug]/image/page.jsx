@@ -19,7 +19,6 @@ const productImagePage = ({ params }) => {
           product_slug
         );
         setImages(data.ProductImages);
-        // setImages(imageList);
       } catch (error) {
         console.error("Error fetching images:", error);
       }
@@ -96,7 +95,7 @@ const productImagePage = ({ params }) => {
                   >
                     <div>{image.name}</div>
                     <img
-                      src={`http://localhost:4000${image.image_url}`}
+                      src={`${image.image_url}`}
                       alt={image.name}
                       width={150}
                     />

@@ -18,14 +18,16 @@ const imageUploadPage = ({ params }) => {
   const router = useRouter();
 
   useEffect(() => {
-    fetchProduct();
+    if (product_slug) {
+      fetchProduct();
+    }
     async function fetchProduct() {
       try {
         const productItem = await productService.getSingleProduct(product_slug);
         setProduct(productItem);
       } catch (err) {
         console.log(err);
-        // setError(err);
+        setError(err);
       }
     }
   }, [product_slug]);
@@ -34,18 +36,26 @@ const imageUploadPage = ({ params }) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("product_id", product.id);
-    formData.append("name", name);
-    formData.append("image", file);
-    if (token) {
-      try {
-        await productImageService.createProductImage(formData, token);
-        setMsg("Added successfully.");
-        setIsSuccess(true);
-      } catch (err) {
-        setError(err);
+    if (!name) {
+      setError("Please fill the name field.");
+    }
+    if (!file) {
+      setError("Please upload an image file.");
+    }
+    if (name && file) {
+      formData.append("name", name);
+      formData.append("image", file);
+      if (token) {
+        try {
+          await productImageService.createProductImage(formData, token);
+          setMsg("Added successfully.");
+          setIsSuccess(true);
+        } catch (err) {
+          setError(err);
+        }
+      } else {
+        setError("Invalid token. Please login.");
       }
-    } else {
-      setError("Invalid token. Please login.");
     }
   };
 

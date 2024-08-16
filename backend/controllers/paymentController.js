@@ -89,6 +89,7 @@ const checkoutSuccess = async (req, res) => {
       ],
     });
 
+    // create order and order items
     if (!order) {
       order = await Order.create({
         user_id: session.metadata.userId,
@@ -123,6 +124,18 @@ const checkoutSuccess = async (req, res) => {
           quantity: item.quantity,
           price: item.ProductSize.Product.price,
         });
+
+        // update product stock
+        await ProductSize.update(
+          {
+            stock: item.ProductSize.stock - item.quantity,
+          },
+          {
+            where: { id: item.product_size_id },
+          }
+        );
+
+        // remove cart item
         await item.destroy();
       });
       await Promise.all(orderItemsPromises);

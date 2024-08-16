@@ -11,8 +11,10 @@ const {
   getProductSizesBySize,
   createProductSize,
   updateProductSize,
+  getProductSize,
 } = require("../controllers/productSizeController");
 
+router.get("", getProductSize);
 router.post(
   "",
   authenticate,
@@ -20,6 +22,7 @@ router.post(
   validateProductSizeCreate,
   createProductSize
 );
+
 router.put(
   "/:id",
   authenticate,
@@ -28,6 +31,6 @@ router.put(
   updateProductSize
 );
 router.get("/:product_id", getProductSizesByProduct);
-router.get("/:product_id/:size/", getProductSizesBySize);
+router.get("/:prodId/:size/", getProductSizesBySize);
 
 module.exports = router;

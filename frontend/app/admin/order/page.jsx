@@ -4,20 +4,38 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import cookie from "js-cookie";
 import orderService from "lib/utils/orderService";
+import { Spinner } from "flowbite-react";
+import PagePagination from "app/components/PagePagination";
 
 const OrderManager = () => {
   const token = cookie.get("token");
   const [orders, setOrders] = useState([]);
   const [status, setStatus] = useState("all");
   const [duration, setDuration] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const LIMIT_PER_PAGE = 10;
 
   useEffect(() => {
     async function fetchOrders() {
       try {
-        const data = await orderService.getOrders(status, duration, token);
-        setOrders(data);
+        const data = await orderService.getOrders({
+          page: currentPage,
+          limit: LIMIT_PER_PAGE,
+          status,
+          duration,
+          token,
+        });
+        setOrders(data.orders);
+        setTotalPages(data.totalPages);
+        setCurrentPage(data.currentPage);
+        setTotalOrders(data.totalOrders);
       } catch (err) {
         console.log(err);
+      } finally {
+        setIsLoading(false);
       }
     }
     if (token) {
@@ -35,6 +53,10 @@ const OrderManager = () => {
     }
   };
 
+  if (isLoading) {
+    return <Spinner />;
+  }
+
   return (
     <section className="bg-white dark:bg-gray-900 p-3 sm:p-5 antialiased">
       <div className="mx-auto max-w-screen-2xl px-4 lg:px-12">
@@ -45,7 +67,9 @@ const OrderManager = () => {
                 <span className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
                   All Order:
                 </span>
-                <span className="dark:text-white">{orders.length}</span>
+                <span className="p-2 text-xl font-bold text-green-800 dark:text-white">
+                  {totalOrders}
+                </span>
               </h5>
 
               {/* order filters */}
@@ -162,104 +186,11 @@ const OrderManager = () => {
             </div>
 
             {/* pagination */}
-            <nav
-              className="mt-6 flex items-center justify-center sm:mt-8"
-              aria-label="Page navigation example"
-            >
-              <ul className="flex h-8 items-center -space-x-px text-sm">
-                <li>
-                  <a
-                    href="#"
-                    className="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >
-                    <span className="sr-only">Previous</span>
-                    <svg
-                      className="h-4 w-4 rtl:rotate-180"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="m15 19-7-7 7-7"
-                      />
-                    </svg>
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >
-                    1
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >
-                    2
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    aria-current="page"
-                    className="z-10 flex h-8 items-center justify-center border border-blue-300 bg-blue-50 px-3 leading-tight text-blue-600 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                  >
-                    3
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >
-                    ...
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >
-                    100
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >
-                    <span className="sr-only">Next</span>
-                    <svg
-                      className="h-4 w-4 rtl:rotate-180"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="m9 5 7 7-7 7"
-                      />
-                    </svg>
-                  </a>
-                </li>
-              </ul>
-            </nav>
+            <PagePagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+            />
           </div>
         </div>
       </div>

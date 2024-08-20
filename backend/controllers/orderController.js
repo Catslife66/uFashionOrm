@@ -150,6 +150,7 @@ const createOrder = async (req, res) => {
 const updateOrderStauts = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
+  console.log("status is " + status);
   try {
     const order = await Order.findByPk(id);
     if (!order) {

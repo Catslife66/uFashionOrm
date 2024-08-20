@@ -1,21 +1,15 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "lib/hooks";
 import React, { Fragment, useEffect, useState } from "react";
 import cookie from "js-cookie";
 import orderService from "lib/utils/orderService";
 import OrderOverviewDetail from "app/components/OrderOverviewDetail";
-import { useRouter } from "next/navigation";
-import { fetchUserLoginStatus } from "lib/features/user/userSlice";
 import { Spinner } from "flowbite-react";
 import PagePagination from "app/components/PagePagination";
+import useAuth from "lib/hooks/useAuth";
 
 const OrderPage = () => {
   const token = cookie.get("token");
-  const dispatch = useAppDispatch();
-  const router = useRouter();
-  const userStatus = useAppSelector((state) => state.user.status);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [orders, setOrders] = useState([]);
   const [status, setStatus] = useState("all");
   const [duration, setDuration] = useState("all");
@@ -24,20 +18,7 @@ const OrderPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const LIMIT_PER_PAGE = 10;
 
-  useEffect(() => {
-    if (token) {
-      if (userStatus === "idle") {
-        dispatch(fetchUserLoginStatus(token));
-      } else if (userStatus === "succeeded") {
-        setIsAuthenticated(true);
-      } else if (userStatus === "failed") {
-        setIsAuthenticated(false);
-        router.push("/login");
-      }
-    } else {
-      router.push("/login");
-    }
-  }, [token, userStatus, dispatch, router]);
+  const isAuthenticated = useAuth();
 
   useEffect(() => {
     async function fetchOrderData() {
@@ -71,12 +52,6 @@ const OrderPage = () => {
     }
     if (name === "duration") {
       setDuration(value);
-    }
-  };
-
-  const handlePageChange = (page) => {
-    if (page > 0 && page <= totalPages) {
-      setCurrentPage(page);
     }
   };
 

@@ -1,7 +1,13 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
-const { User, ShippingAddress, WishList } = require("../models");
+const {
+  User,
+  ShippingAddress,
+  WishList,
+  ProductSize,
+  Product,
+} = require("../models");
 
 // get all users
 const getUserList = async (req, res) => {
@@ -285,6 +291,7 @@ const getUserWishList = async (req, res) => {
 
     const wishlist = await WishList.findAll({
       where: { user_id: user.id },
+      include: [{ model: ProductSize, include: { model: Product } }],
     });
 
     if (!wishlist) {

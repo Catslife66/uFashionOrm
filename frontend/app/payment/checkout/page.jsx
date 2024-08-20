@@ -9,8 +9,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import userService from "lib/utils/userService";
 import cartService from "lib/utils/cartService";
 import paymentService from "lib/utils/paymentService";
-import { fetchUserLoginStatus } from "lib/features/user/userSlice";
 import { Spinner } from "flowbite-react";
+import useAuth from "lib/hooks/useAuth";
 
 const CheckoutPage = () => {
   const token = cookie.get("token");
@@ -23,7 +23,7 @@ const CheckoutPage = () => {
     postcode: "",
     county: "",
   });
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const [isLoading, setIsLoading] = useState(true);
   const [addresses, setAddresses] = useState([]);
   const [hideAddNew, setHideAddNew] = useState(true);
@@ -31,29 +31,12 @@ const CheckoutPage = () => {
   const [formError, setFormError] = useState("");
   const [isDisable, setIsDisable] = useState(false);
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const userStatus = useAppSelector((state) => state.user.status);
 
   const searchParams = useSearchParams();
   const cartSubtotal = parseFloat(searchParams.get("cartSubtotal"));
   const shipping = parseFloat(searchParams.get("shipping"));
 
-  useEffect(() => {
-    if (token) {
-      if (userStatus === "idle") {
-        dispatch(fetchUserLoginStatus(token));
-      } else if (userStatus === "succeeded") {
-        setIsAuthenticated(true);
-      } else if (userStatus === "failed") {
-        setIsAuthenticated(false);
-        router.push("/login");
-        localStorage.setItem("redirectPath", `/cart`);
-      }
-    } else {
-      router.push("/login");
-      localStorage.setItem("redirectPath", `/cart`);
-    }
-  }, [token, userStatus, dispatch, router]);
+  const isAuthenticated = useAuth();
 
   useEffect(() => {
     async function fetchUserShippingAddressData() {

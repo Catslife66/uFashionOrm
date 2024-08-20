@@ -9,33 +9,20 @@ import { useAppDispatch, useAppSelector } from "lib/hooks";
 import cartService from "lib/utils/cartService";
 import OrderSummary from "app/components/OrderSummary";
 import { fetchCartItems } from "lib/features/cart/cartSlice";
-import { fetchUserLoginStatus } from "lib/features/user/userSlice";
+import useAuth from "lib/hooks/useAuth";
 
 const CartPage = () => {
   const token = cookie.get("token");
   const [isLoading, setIsLoading] = useState(true);
   const [nonUserCartItems, setNonUserCartItems] = useState([]);
-  const userStatus = useAppSelector((state) => state.user.status);
   const cartStatus = useAppSelector((state) => state.cart.status);
   const cartItems = useAppSelector((state) => state.cart.cartItems);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const [isEmpty, setIsEmpty] = useState(true);
   const [cartSubtotal, setCartSubtotal] = useState(0);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    if (token) {
-      if (userStatus === "idle") {
-        dispatch(fetchUserLoginStatus(token));
-      } else if (userStatus === "succeeded") {
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-      }
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, [token, userStatus, dispatch]);
+  const isAuthenticated = useAuth();
 
   useEffect(() => {
     function calculateCartTotal(items) {

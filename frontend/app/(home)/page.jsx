@@ -46,38 +46,50 @@ export default function Home() {
         <div className="container mx-auto px-8">
           <h2 className="text-3xl font-bold mb-8">Shop by Categories</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-4 rounded-lg shadow-lg">
+            <Link
+              href="/products/search?query=dresses"
+              className="bg-white p-4 rounded-lg shadow-lg"
+            >
               <img
                 src="https://images.unsplash.com/photo-1604176354204-9268737828e4?q=80&w=2283&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Casual Wear"
                 className="rounded-lg"
               />
-              <h3 className="text-xl font-bold mt-4">Casual Wear</h3>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-lg">
+              <h3 className="text-xl font-bold mt-4">Dresses</h3>
+            </Link>
+            <Link
+              href="/products/search?query=tops"
+              className="bg-white p-4 rounded-lg shadow-lg"
+            >
               <img
                 src="https://images.unsplash.com/photo-1604176354204-9268737828e4?q=80&w=2283&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Western Wear"
                 className="rounded-lg"
               />
-              <h3 className="text-xl font-bold mt-4">Western Wear</h3>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-lg">
+              <h3 className="text-xl font-bold mt-4">Tops</h3>
+            </Link>
+            <Link
+              href="/products/search?query=shoes"
+              className="bg-white p-4 rounded-lg shadow-lg"
+            >
               <img
                 src="https://images.unsplash.com/photo-1604176354204-9268737828e4?q=80&w=2283&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Ethnic Wear"
                 className="rounded-lg"
               />
-              <h3 className="text-xl font-bold mt-4">Ethnic Wear</h3>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-lg">
+              <h3 className="text-xl font-bold mt-4">Shoes</h3>
+            </Link>
+            <Link
+              href="/products/search?query=jackets"
+              className="bg-white p-4 rounded-lg shadow-lg"
+            >
               <img
                 src="https://images.unsplash.com/photo-1604176354204-9268737828e4?q=80&w=2283&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Kids Wear"
                 className="rounded-lg"
               />
-              <h3 className="text-xl font-bold mt-4">Kids Wear</h3>
-            </div>
+              <h3 className="text-xl font-bold mt-4">Jackets</h3>
+            </Link>
           </div>
         </div>
       </section>

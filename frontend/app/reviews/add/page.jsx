@@ -3,12 +3,11 @@
 import React, { useEffect, useState } from "react";
 import cookie from "js-cookie";
 import { useRouter } from "next/navigation";
-import { fetchUserLoginStatus } from "lib/features/user/userSlice";
-import { useAppDispatch, useAppSelector } from "lib/hooks";
 import { Spinner } from "flowbite-react";
 import orderService from "lib/utils/orderService";
 import productService from "lib/utils/productService";
 import reviewService from "lib/utils/reviewService";
+import useAuth from "lib/hooks/useAuth";
 
 const AddReviewPage = ({ params, searchParams }) => {
   const { orderItemId, productId } = searchParams;
@@ -25,33 +24,9 @@ const AddReviewPage = ({ params, searchParams }) => {
   const [comment, setComment] = useState("");
   const [formError, setFormError] = useState("");
   const token = cookie.get("token");
-  const dispatch = useAppDispatch();
   const router = useRouter();
-  const userStatus = useAppSelector((state) => state.user.status);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    if (token) {
-      if (userStatus === "idle") {
-        dispatch(fetchUserLoginStatus(token));
-      } else if (userStatus === "succeeded") {
-        setIsAuthenticated(true);
-      } else if (userStatus === "failed") {
-        setIsAuthenticated(false);
-        router.push("/login");
-        localStorage.setItem(
-          "redirectPath",
-          `/reviews/add?orderItemId=${orderItemId}&productId=${productId}`
-        );
-      }
-    } else {
-      router.push("/login");
-      localStorage.setItem(
-        "redirectPath",
-        `/reviews/add?orderItemId=${orderItemId}&productId=${productId}`
-      );
-    }
-  }, [token, userStatus, dispatch, router]);
+  const isAuthenticated = useAuth();
 
   useEffect(() => {
     async function fetchProductData() {

@@ -51,11 +51,17 @@ const getOrderItem = async (id) => {
   return res.data;
 };
 
+const updateOrderStauts = async (id, data) => {
+  const res = await axios.patch(`${API_URL}/${id}`, data);
+  return res.data;
+};
+
 const orderService = {
   getOrders,
   getSingleOrder,
   initiateOrder,
   getOrderItem,
+  updateOrderStauts,
 };
 
 export default orderService;

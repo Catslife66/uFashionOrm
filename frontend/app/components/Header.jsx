@@ -1,40 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import cookie from "js-cookie";
 import ProductSearchForm from "./ProductSearchForm";
 import ShoppingCart from "./ShoppingCart";
-import { useAppDispatch } from "lib/hooks";
+import { useAppDispatch, useAppSelector } from "lib/hooks";
 import { fetchCartItems } from "lib/features/cart/cartSlice";
-import { fetchUserLoginStatus } from "lib/features/user/userSlice";
 import UserDropdownMenu from "./UserDropdownMenu";
 import categoryService from "lib/utils/categoryService";
+import useAuth from "lib/hooks/useAuth";
 
 const Header = () => {
   const token = cookie.get("token");
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [categories, setCategories] = useState([]);
   const [isCategoryHovered, setIsCategoryHovered] = useState(false);
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    if (token) {
-      dispatch(fetchUserLoginStatus(token))
-        .unwrap()
-        .then((data) => {
-          setUser(data);
-          setIsAuthenticated(true);
-        })
-        .catch((err) => {
-          console.log(err);
-          setIsAuthenticated(false);
-          setUser(null);
-        });
-    }
-  }, [token, dispatch]);
+  const isAuthenticated = useAuth();
+  const user = useAppSelector((state) => state.user.user);
 
   useEffect(() => {
     if (isAuthenticated && token) {

@@ -3,18 +3,14 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import cookie from "js-cookie";
-import { useAppSelector, useAppDispatch } from "lib/hooks";
-import { useRouter } from "next/navigation";
 import orderService from "lib/utils/orderService";
-import { fetchUserLoginStatus } from "lib/features/user/userSlice";
 import { Spinner } from "flowbite-react";
 
 const OrderDetailPage = ({ params, searchParams }) => {
   const id = params.id;
   const token = cookie.get("token");
-  const router = useRouter();
-
   const [order, setOrder] = useState({});
+  const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -22,6 +18,7 @@ const OrderDetailPage = ({ params, searchParams }) => {
       try {
         const res = await orderService.getSingleOrder(id, token);
         setOrder(res);
+        setStatus(res.status);
         setIsLoading(false);
       } catch (err) {
         console.log(err);
@@ -30,8 +27,18 @@ const OrderDetailPage = ({ params, searchParams }) => {
     if (token) {
       fetchOrderData();
     }
-    console.log(token);
   }, [token, id]);
+
+  const handleUpdateStatus = async (e) => {
+    setStatus(e.target.value);
+    try {
+      const data = { status: e.target.value };
+      const res = await orderService.updateOrderStauts(id, data);
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   if (isLoading) {
     return <Spinner />;
@@ -119,14 +126,23 @@ const OrderDetailPage = ({ params, searchParams }) => {
                     £ {order.total_amount}
                   </dd>
                 </dl>
+
                 <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                  <dt className="text-lg font-bold text-gray-900 dark:text-white">
+                  <label className="text-lg font-bold text-gray-900 dark:text-white">
                     Order Status:
-                  </dt>
-                  <dd className="text-lg font-bold p-4 text-right text-gray-900 dark:text-white">
-                    {order.status}
-                  </dd>
+                  </label>
+                  <select
+                    onChange={handleUpdateStatus}
+                    value={status}
+                    className="text-lg font-bold p-4 text-right text-gray-900 dark:text-white"
+                  >
+                    <option value="confirmed">confirmed</option>
+                    <option value="dispatched">dispatched</option>
+                    <option value="cancelled">cancelled</option>
+                    <option value="pending">pending</option>
+                  </select>
                 </dl>
+
                 <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
                   <dt className="text-lg font-bold text-gray-900 dark:text-white">
                     Shipping Address:
